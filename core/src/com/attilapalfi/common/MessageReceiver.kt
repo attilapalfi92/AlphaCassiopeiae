@@ -6,4 +6,5 @@ package com.attilapalfi.common
 interface MessageReceiver {
     fun started(): Boolean
     fun startReceiving()
+    fun stopReceiving()
 }

@@ -1,4 +1,4 @@
-package com.attilapalfi.common
+package com.attilapalfi.network
 
 /**
  * Created by palfi on 2016-01-13.

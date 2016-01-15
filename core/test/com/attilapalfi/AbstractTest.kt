@@ -1,6 +1,6 @@
 package com.attilapalfi
 
-import com.attilapalfi.common.MessageBroadcaster
+import com.attilapalfi.network.MessageBroadcaster
 import com.attilapalfi.common.messages.SERVER_DISCOVERY_MESSAGE
 import com.attilapalfi.game.World
 import com.attilapalfi.common.PORT

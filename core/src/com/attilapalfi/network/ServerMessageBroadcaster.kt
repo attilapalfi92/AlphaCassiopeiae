@@ -1,15 +1,16 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.MessageBroadcaster
+import com.attilapalfi.common.messages.DISCOVERY_BROADCAST
+import com.attilapalfi.common.messages.ServerMessage
 import java.net.*
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class ServerMessageBroadcaster(private val port: Int, private val maxPlayers: Int, broadcastMessage: String) :
+class ServerMessageBroadcaster(private val port: Int, private val maxPlayers: Int) :
         MessageBroadcaster {
 
-    private val socket: DatagramSocket = DatagramSocket().apply { broadcast = true }
+    private val socket: DatagramSocket by lazy { DatagramSocket().apply { broadcast = true } }
     private val broadcastMessage: ByteArray
 
     private val broadcastAddresses: List<InetAddress> = filterBroadcastAddresses(collectValidNetworkInterfaceAddresses())
@@ -23,7 +24,7 @@ class ServerMessageBroadcaster(private val port: Int, private val maxPlayers: In
         if (maxPlayers < 1) {
             throw IllegalStateException("maxPlayers must be at least 1.")
         }
-        this.broadcastMessage = broadcastMessage.toByteArray()
+        this.broadcastMessage = Converter.messageToByteArray(ServerMessage(DISCOVERY_BROADCAST))
     }
 
     @Synchronized
@@ -52,13 +53,13 @@ class ServerMessageBroadcaster(private val port: Int, private val maxPlayers: In
     private fun sleep() {
         when (connectedClients) {
             0 -> Thread.sleep(100)
-            else -> Thread.sleep(500)
+            else -> Thread.sleep(1000)
         }
     }
 
     @Synchronized
     override fun clientConnected() {
-        if (connectedClients < 2) {
+        if (connectedClients < maxPlayers) {
             connectedClients++
         }
     }

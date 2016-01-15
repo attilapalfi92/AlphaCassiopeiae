@@ -4,7 +4,7 @@ import com.attilapalfi.AbstractTest
 import com.attilapalfi.common.BUFFER_SIZE
 import com.attilapalfi.common.MessageReceiver
 import com.attilapalfi.common.PORT
-import com.attilapalfi.game.TestMessageProcessorImpl
+import com.attilapalfi.game.TestPacketProcessorImpl
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -17,7 +17,7 @@ import java.net.InetAddress
  */
 class ServerMessageReceiverTest : AbstractTest() {
 
-    private lateinit var messageProcessor: TestMessageProcessorImpl
+    private lateinit var messageProcessor: TestPacketProcessorImpl
     private lateinit var messageReceiver: MessageReceiver
     private val messageCount: Int = 1000
 
@@ -27,7 +27,7 @@ class ServerMessageReceiverTest : AbstractTest() {
     @Before
     override fun setup() {
         super.setup()
-        messageProcessor = TestMessageProcessorImpl(messageCount)
+        messageProcessor = TestPacketProcessorImpl(messageCount)
         messageReceiver = ServerMessageReceiver(messageProcessor, PORT, BUFFER_SIZE)
     }
 

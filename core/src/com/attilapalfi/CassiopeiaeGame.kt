@@ -1,7 +1,7 @@
 package com.attilapalfi
 
 import com.attilapalfi.common.*
-import com.attilapalfi.game.ServerMessageProcessor
+import com.attilapalfi.network.ServerPacketProcessor
 import com.attilapalfi.game.World
 import com.attilapalfi.network.*
 import com.badlogic.gdx.ApplicationListener
@@ -20,13 +20,13 @@ class CassiopeiaeGame : ApplicationListener {
         batch = SpriteBatch()
         img = Texture("badlogic.jpg")
 
-        val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 3, "Cassiopeiae server discovery.")
         val world: World = World()
-        val messageProcessor: MessageProcessor = ServerMessageProcessor(world, broadcaster)
-        val messageReceiver: MessageReceiver = ServerMessageReceiver(messageProcessor, PORT, BUFFER_SIZE)
+        val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 3, "Cassiopeiae server discovery.")
+        val packetProcessor: PacketProcessor = ServerPacketProcessor(world, broadcaster)
+        val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
 
-        broadcaster.startBroadcasting()
         messageReceiver.startReceiving()
+        broadcaster.startBroadcasting()
         world.start()
 
         playMusic()
