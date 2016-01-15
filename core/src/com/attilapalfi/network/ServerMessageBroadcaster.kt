@@ -1,33 +1,48 @@
 package com.attilapalfi.network
 
+import com.attilapalfi.common.MessageBroadcaster
 import java.net.*
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class ServerBroadcaster(private val port: Int, private val broadcastMessage: ByteArray) {
+class ServerMessageBroadcaster(private val port: Int, private val maxPlayers: Int, broadcastMessage: String) :
+        MessageBroadcaster {
+
     private val socket: DatagramSocket = DatagramSocket().apply { broadcast = true }
+    private val broadcastMessage: ByteArray
+
     private val broadcastAddresses: List<InetAddress> = filterBroadcastAddresses(collectValidNetworkInterfaceAddresses())
+
     @Volatile
     private var connectedClients = 0;
     @Volatile
     private var started = false;
 
+    init {
+        if (maxPlayers < 1) {
+            throw IllegalStateException("maxPlayers must be at least 1.")
+        }
+        this.broadcastMessage = broadcastMessage.toByteArray()
+    }
+
     @Synchronized
-    fun startBroadcasting() {
+    override fun startBroadcasting() {
         if (!started) {
             started = true
             Thread({
-                while (true) {
-                    sendDiscoveryBroadcast()
-                    sleep()
+                socket.use {
+                    while (true) {
+                        sendDiscoveryBroadcast()
+                        sleep()
+                    }
                 }
             }).start()
         }
     }
 
     private fun sendDiscoveryBroadcast() {
-        if (connectedClients < 2) {
+        if (connectedClients < maxPlayers) {
             broadcastAddresses.forEach {
                 socket.send(DatagramPacket(broadcastMessage, broadcastMessage.size, it, port))
             }
@@ -42,14 +57,14 @@ class ServerBroadcaster(private val port: Int, private val broadcastMessage: Byt
     }
 
     @Synchronized
-    fun clientConnected() {
+    override fun clientConnected() {
         if (connectedClients < 2) {
             connectedClients++
         }
     }
 
     @Synchronized
-    fun clientDisconnected() {
+    override fun clientDisconnected() {
         if (connectedClients > 0) {
             connectedClients--;
         }

@@ -1,9 +1,12 @@
 package com.attilapalfi.game
 
+import java.net.InetAddress
+
 /**
  * Created by palfi on 2016-01-11.
  */
-class Player(public val deviceName: String, public val androidId: String) {
+class Player(public val deviceName: String, public val androidId: String,
+             public val ipAddress: InetAddress, public val port: Int) {
     @Volatile
     public var x: Int = 0
     @Volatile

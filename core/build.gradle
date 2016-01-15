@@ -24,10 +24,9 @@ repositories {
 }
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile 'junit:junit:4.12'
 }
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
-}
-testSets {
-    test.testSrcDirs += 'test'
+    test.java.srcDirs += 'test'
 }

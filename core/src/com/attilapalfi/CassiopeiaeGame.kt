@@ -1,9 +1,9 @@
 package com.attilapalfi
 
-import com.attilapalfi.game.MessageProcessor
+import com.attilapalfi.common.*
+import com.attilapalfi.game.ServerMessageProcessor
 import com.attilapalfi.game.World
-import com.attilapalfi.network.MessageReceiver
-import com.attilapalfi.network.ServerBroadcaster
+import com.attilapalfi.network.*
 import com.badlogic.gdx.ApplicationListener
 import com.badlogic.gdx.Files.FileType
 import com.badlogic.gdx.Gdx
@@ -13,10 +13,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 class CassiopeiaeGame : ApplicationListener {
 
-    companion object {
-        val PORT = 23456
-    }
-
     lateinit var batch: SpriteBatch
     lateinit var img: Texture
 
@@ -24,10 +20,10 @@ class CassiopeiaeGame : ApplicationListener {
         batch = SpriteBatch()
         img = Texture("badlogic.jpg")
 
-        val broadcaster = ServerBroadcaster(PORT, "Cassiopeiae server discovery.".toByteArray())
-        val world = World()
-        val messageProcessor = MessageProcessor(world, broadcaster)
-        val messageReceiver = MessageReceiver(messageProcessor, PORT)
+        val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 3, "Cassiopeiae server discovery.")
+        val world: World = World()
+        val messageProcessor: MessageProcessor = ServerMessageProcessor(world, broadcaster)
+        val messageReceiver: MessageReceiver = ServerMessageReceiver(messageProcessor, PORT, BUFFER_SIZE)
 
         broadcaster.startBroadcasting()
         messageReceiver.startReceiving()
