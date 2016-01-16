@@ -21,13 +21,12 @@ class CassiopeiaeGame : ApplicationListener {
         img = Texture("badlogic.jpg")
 
         val world: World = World()
-        val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 3, "Cassiopeiae server discovery.")
+        val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 1)
         val packetProcessor: PacketProcessor = ServerPacketProcessor(world, broadcaster)
         val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
 
         messageReceiver.startReceiving()
         broadcaster.startBroadcasting()
-        world.start()
 
         playMusic()
     }

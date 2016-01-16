@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.InetAddress
 
 /**
  * Created by palfi on 2016-01-11.
@@ -17,7 +18,7 @@ class ServerMessageReceiver(private val packetProcessor: PacketProcessor) : Mess
     @Volatile
     private var started = false
     private val socket = DatagramSocket(PORT)
-
+    private val localHost = InetAddress.getLocalHost()
     private val thread: Thread by lazy { newThread() }
 
     private fun newThread(): Thread {
@@ -46,7 +47,9 @@ class ServerMessageReceiver(private val packetProcessor: PacketProcessor) : Mess
         val buffer: ByteArray = ByteArray(BUFFER_SIZE)
         val packet = DatagramPacket(buffer, buffer.size)
         socket.receive(packet)
-        packetProcessor.process(packet)
+        if (localHost != packet.address) {
+            packetProcessor.process(packet)
+        }
     }
 
     override fun stopReceiving() {

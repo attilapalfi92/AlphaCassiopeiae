@@ -1,6 +1,6 @@
 package com.attilapalfi.game
 
-import java.util.concurrent.ConcurrentHashMap
+import com.attilapalfi.network.Client
 
 /**
  * Created by palfi on 2016-01-11.
@@ -16,20 +16,17 @@ class World {
     @Volatile
     private var running = true
     private var lastStepTime: Long = 0L
-    private val players: MutableMap<String, Player> = ConcurrentHashMap()
+    private lateinit var players: Map<Client, Player>
 
-    fun addPlayer(player: Player) {
-        players.put(player.androidId, player)
-    }
-
-    fun setPlayerSpeed(androidId: String, speedX: Int, speedY: Int) {
-        players[androidId]?.let {
+    fun setPlayerSpeed(client: Client, speedX: Int, speedY: Int) {
+        players[client]?.let {
             it.speedX = speedX
             it.speedY = speedY
         }
     }
 
-    fun start() {
+    fun start(players: Map<Client, Player>) {
+        this.players = players
         Thread({
             while (running) {
                 when (gameState) {
@@ -58,7 +55,7 @@ class World {
             val deltaTime = System.currentTimeMillis() - lastStepTime
 
             players.forEach {
-                // draw
+                // step
             }
 
         }

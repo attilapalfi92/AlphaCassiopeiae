@@ -1,9 +1,8 @@
 package com.attilapalfi
 
-import com.attilapalfi.network.MessageBroadcaster
-import com.attilapalfi.common.messages.SERVER_DISCOVERY_MESSAGE
-import com.attilapalfi.game.World
 import com.attilapalfi.common.PORT
+import com.attilapalfi.game.World
+import com.attilapalfi.network.MessageBroadcaster
 import com.attilapalfi.network.ServerMessageBroadcaster
 
 /**
@@ -16,6 +15,6 @@ abstract class AbstractTest {
 
     open fun setup() {
         world = World()
-        messageBroadcaster = ServerMessageBroadcaster(PORT, maxPlayers, SERVER_DISCOVERY_MESSAGE)
+        messageBroadcaster = ServerMessageBroadcaster(PORT, maxPlayers)
     }
 }

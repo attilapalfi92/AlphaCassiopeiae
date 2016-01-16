@@ -28,7 +28,7 @@ class ServerMessageReceiverTest : AbstractTest() {
     override fun setup() {
         super.setup()
         messageProcessor = TestPacketProcessorImpl(messageCount)
-        messageReceiver = ServerMessageReceiver(messageProcessor, PORT, BUFFER_SIZE)
+        messageReceiver = ServerMessageReceiver(messageProcessor)
     }
 
     @Test
