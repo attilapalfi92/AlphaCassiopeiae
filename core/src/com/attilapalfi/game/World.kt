@@ -16,12 +16,14 @@ class World {
     @Volatile
     private var running = true
     private var lastStepTime: Long = 0L
-    private lateinit var players: Map<Client, Player>
+    private var players: Map<Client, Player>? = null
 
     fun setPlayerSpeed(client: Client, speedX: Int, speedY: Int) {
-        players[client]?.let {
-            it.speedX = speedX
-            it.speedY = speedY
+        players?.let {
+            it[client]?.let {
+                it.speedX = speedX
+                it.speedY = speedY
+            }
         }
     }
 
@@ -54,7 +56,7 @@ class World {
         if (lastStepTime != 0L) {
             val deltaTime = System.currentTimeMillis() - lastStepTime
 
-            players.forEach {
+            players?.forEach {
                 // step
             }
 
@@ -62,4 +64,9 @@ class World {
         lastStepTime = System.currentTimeMillis()
     }
 
+    fun render() {
+
+    }
+
+    fun playerCount(): Int = players?.size ?: 0
 }

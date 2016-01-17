@@ -13,18 +13,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 class CassiopeiaeGame : ApplicationListener {
 
-    lateinit var batch: SpriteBatch
-    lateinit var img: Texture
+    private val batch = SpriteBatch()
+    private val img = Texture("badlogic.jpg")
+    private val world = World()
+    private val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 1)
+    private val packetProcessor: PacketProcessor = ServerPacketProcessor(world, broadcaster)
+    private val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
 
     override fun create() {
-        batch = SpriteBatch()
-        img = Texture("badlogic.jpg")
-
-        val world: World = World()
-        val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 1)
-        val packetProcessor: PacketProcessor = ServerPacketProcessor(world, broadcaster)
-        val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
-
         messageReceiver.startReceiving()
         broadcaster.startBroadcasting()
 
@@ -34,9 +30,10 @@ class CassiopeiaeGame : ApplicationListener {
     override fun render() {
         Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        batch.begin()
-        batch.draw(img, 0f, 0f)
-        batch.end()
+        world.render()
+//        batch.begin()
+//        batch.draw(img, 0f, 0f)
+//        batch.end()
     }
 
     override fun pause() {

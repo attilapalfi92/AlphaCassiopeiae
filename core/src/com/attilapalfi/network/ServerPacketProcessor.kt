@@ -9,6 +9,7 @@ import com.attilapalfi.game.World
 import org.apache.commons.lang3.SerializationException
 import java.net.DatagramPacket
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by palfi on 2016-01-11.
@@ -19,6 +20,42 @@ class ServerPacketProcessor(private val world: World,
     private val messageSender: MessageSender = ServerMessageSender()
     private val players: MutableMap<Client, Player> = HashMap(11)
 
+    private val clientsToAcks: MutableMap<Client, Long> = ConcurrentHashMap()
+    private val waitObject = Object()
+
+    init {
+        createAckReSenderThread().start()
+    }
+
+    private fun createAckReSenderThread(): Thread {
+        return Thread({
+            while (true) {
+                synchronized(waitObject) {
+                    if (clientsToAcks.isEmpty()) {
+                        waitObject.wait()
+                    } else {
+                        resendAckOnTimeout()
+                        Thread.sleep(250)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun resendAckOnTimeout() {
+        val currentTime = System.currentTimeMillis()
+        for ((client, lastTime) in clientsToAcks) {
+            if (currentTime - lastTime > 1000) {
+                sendAckToClient(client, currentTime)
+            }
+        }
+    }
+
+    private fun sendAckToClient(client: Client, time: Long) {
+        messageSender.send(client, ServerMessage(CLIENT_ACKNOWLEDGED))
+        clientsToAcks.put(client, time)
+    }
+
     override fun process(packet: DatagramPacket) {
         try {
             val clientMessage = Converter.byteArrayToMessage(packet.data)
@@ -27,8 +64,7 @@ class ServerPacketProcessor(private val world: World,
                     handleRegistration(clientMessage, packet)
                 }
                 START -> {
-                    world.gameState = GameState.STARTED
-                    world.start(players)
+                    handleStart(packet)
                 }
                 SENSOR_DATA -> {
 
@@ -56,8 +92,24 @@ class ServerPacketProcessor(private val world: World,
             messageBroadcaster.clientConnected()
             val client = Client(packet.address, PORT, clientMessage.deviceName)
             players.put(client, Player())
-            messageSender.send(client, ServerMessage(CLIENT_ACKNOWLEDGED))
+            sendAckToClient(client, System.currentTimeMillis())
+            synchronized(waitObject) { waitObject.notify() }
             world.gameState = GameState.WAITING_FOR_START
         }
     }
+
+    private fun handleStart(packet: DatagramPacket) {
+        for ((client, lastTime) in clientsToAcks) {
+            if (client.IP == packet.address) {
+                clientsToAcks.remove(client)
+                break
+            }
+        }
+        if (world.gameState == GameState.WAITING_FOR_START) {
+            world.gameState = GameState.STARTED
+            world.start(players)
+        }
+    }
+
+    override fun playerCount(): Int = players.size
 }

@@ -7,4 +7,5 @@ import java.net.DatagramPacket
  */
 interface PacketProcessor {
     fun process(packet: DatagramPacket)
+    open fun playerCount(): Int
 }

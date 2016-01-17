@@ -17,4 +17,6 @@ class TestPacketProcessorImpl(expectedMessageCount: Int) : PacketProcessor {
         processCallCount++
         messageHistory.add(packet)
     }
+
+    override fun playerCount(): Int = 0
 }
