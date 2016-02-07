@@ -13,3 +13,5 @@ val SHINE_1: Byte =             0b110
 val SHINE_2: Byte =             0b1110
 val VIBRATE_1: Byte =           0b11110
 val VIBRATE_2: Byte =           0b111110
+
+val MESSAGE_END: ByteArray = ByteArray(16, {i -> i.toByte()})

@@ -38,7 +38,7 @@ class World {
                     GameState.WAITING_FOR_START -> {
                         Thread.sleep(100)
                     }
-                    GameState.STARTED -> {
+                    GameState.RUNNING -> {
                         step()
                     }
                     GameState.PAUSED -> {

@@ -106,7 +106,7 @@ class ServerPacketProcessor(private val world: World,
             }
         }
         if (world.gameState == GameState.WAITING_FOR_START) {
-            world.gameState = GameState.STARTED
+            world.gameState = GameState.RUNNING
             world.start(players)
         }
     }

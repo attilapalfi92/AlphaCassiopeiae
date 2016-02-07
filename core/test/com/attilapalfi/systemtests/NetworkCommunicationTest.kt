@@ -53,7 +53,7 @@ class NetworkCommunicationTest {
     }
 
     fun step3() {
-        Assert.assertEquals(GameState.STARTED, world.gameState)
+        Assert.assertEquals(GameState.RUNNING, world.gameState)
         Assert.assertEquals(1, world.playerCount())
     }
 
