@@ -7,7 +7,7 @@ import java.net.*
 /**
  * Created by palfi on 2016-01-11.
  */
-class ServerMessageBroadcaster(private val port: Int, private val maxPlayers: Int) :
+class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
         MessageBroadcaster {
 
     private val socket: DatagramSocket by lazy { DatagramSocket().apply { broadcast = true } }

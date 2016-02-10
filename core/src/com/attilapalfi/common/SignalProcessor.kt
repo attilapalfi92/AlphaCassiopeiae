@@ -3,6 +3,6 @@ package com.attilapalfi.common
 /**
  * Created by 212461305 on 2016.02.10..
  */
-interface MessageBuffer {
-    fun tryToProcess(array: ByteArray, readBytes: Int)
+interface SignalProcessor {
+    fun processMessage(messageBytes: ByteArray)
 }

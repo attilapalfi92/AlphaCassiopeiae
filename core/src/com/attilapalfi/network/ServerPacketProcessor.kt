@@ -52,7 +52,7 @@ class ServerPacketProcessor(private val world: World,
     }
 
     private fun sendAckToClient(client: Client, time: Long) {
-        messageSender.send(client, ServerMessage(CLIENT_ACKNOWLEDGED))
+        messageSender.send(client, ServerMessage(REG_ACK))
         clientsToAcks.put(client, time)
     }
 

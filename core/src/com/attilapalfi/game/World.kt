@@ -1,6 +1,7 @@
 package com.attilapalfi.game
 
 import com.attilapalfi.network.Client
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by palfi on 2016-01-11.
@@ -16,7 +17,7 @@ class World {
     @Volatile
     private var running = true
     private var lastStepTime: Long = 0L
-    private var players: Map<Client, Player>? = null
+    private var players: Map<Client, Player> = ConcurrentHashMap(11);
 
     fun setPlayerSpeed(client: Client, speedX: Int, speedY: Int) {
         players?.let {

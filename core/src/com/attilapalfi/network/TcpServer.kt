@@ -1,5 +1,6 @@
 package com.attilapalfi.network
 
+import com.attilapalfi.common.MessageBuffer
 import com.badlogic.gdx.Gdx
 import java.io.IOException
 import java.net.InetAddress
@@ -10,13 +11,13 @@ import java.net.Socket
 /**
  * Created by palfi on 2016-02-06.
  */
-class TcpServerThread : Thread() {
+class TcpServer : Thread() {
 
     val address: InetAddress
     val port: Int
     private val serverSocket: ServerSocket = ServerSocket()
     private val socket: Socket by lazy { serverSocket.accept() }
-    private val messageBuffer: TcpMessageBuffer = TcpMessageBuffer()
+    private val messageBuffer: MessageBuffer = TcpMessageBuffer()
 
     init {
         serverSocket.bind(null)
@@ -28,8 +29,6 @@ class TcpServerThread : Thread() {
         try {
             socket.keepAlive = true // blocks until connection, lazy init
             while (!Thread.interrupted()) {
-
-
                 val array = ByteArray(300)
                 val inputStream = socket.inputStream
                 var readBytes: Int = 0

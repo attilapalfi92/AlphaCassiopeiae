@@ -16,7 +16,7 @@ class CassiopeiaeGame : ApplicationListener {
     private val batch = SpriteBatch()
     private val img = Texture("badlogic.jpg")
     private val world = World()
-    private val broadcaster: MessageBroadcaster = ServerMessageBroadcaster(PORT, 1)
+    private val broadcaster: MessageBroadcaster = DiscoveryBroadcaster(PORT, 1)
     private val packetProcessor: PacketProcessor = ServerPacketProcessor(world, broadcaster)
     private val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
 
