@@ -5,10 +5,12 @@ import java.io.Serializable
 /**
  * Created by palfi on 2016-01-15.
  */
-class ClientMessage(public val messageType: Byte = 0,
+class UdpSensorData(public val fireType: Byte,
                     public val x: Float = 0f,
-                    public val y: Float = 0f,
-                    public val deviceName: String? = null) : Serializable
+                    public val y: Float = 0f) : Serializable
+
+class TcpClientMessage(public val messageType: Byte = 0,
+                       public val deviceName: String? = null) : Serializable
 
 val SENSOR_DATA: Byte   = 0b0
 val REGISTRATION: Byte  = 0b10

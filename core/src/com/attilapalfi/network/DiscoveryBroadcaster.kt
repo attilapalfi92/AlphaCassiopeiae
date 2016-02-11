@@ -1,7 +1,8 @@
 package com.attilapalfi.network
 
 import com.attilapalfi.common.messages.DISCOVERY_BROADCAST
-import com.attilapalfi.common.messages.ServerMessage
+import com.attilapalfi.common.messages.TcpServerMessage
+import com.attilapalfi.network.utlis.Converter
 import java.net.*
 
 /**
@@ -24,7 +25,7 @@ class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
         if (maxPlayers < 1) {
             throw IllegalStateException("maxPlayers must be at least 1.")
         }
-        this.broadcastMessage = Converter.messageToByteArray(ServerMessage(DISCOVERY_BROADCAST))
+        this.broadcastMessage = Converter.tcpMessageToByteArray(TcpServerMessage(DISCOVERY_BROADCAST))
     }
 
     @Synchronized
@@ -69,6 +70,11 @@ class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
         if (connectedClients > 0) {
             connectedClients--;
         }
+    }
+
+    @Synchronized
+    override fun clientsCleared() {
+        connectedClients = 0
     }
 
     private fun filterBroadcastAddresses(interfaceAddresses: List<InterfaceAddress>): List<InetAddress> {

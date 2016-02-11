@@ -5,7 +5,9 @@ import java.io.Serializable
 /**
  * Created by palfi on 2016-01-15.
  */
-class ServerMessage(public val messageType: Byte = 0) : Serializable
+class UdpDiscoveryBroadcast : Serializable
+
+class TcpServerMessage(public val messageType: Byte = 0) : Serializable
 
 val DISCOVERY_BROADCAST: Byte   = 0b0
 val REG_ACK: Byte               = 0b10

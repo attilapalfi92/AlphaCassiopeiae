@@ -6,6 +6,7 @@ import com.attilapalfi.common.messages.*
 import com.attilapalfi.game.GameState
 import com.attilapalfi.game.Player
 import com.attilapalfi.game.World
+import com.attilapalfi.network.utlis.Converter
 import org.apache.commons.lang3.SerializationException
 import java.net.DatagramPacket
 import java.util.*
@@ -14,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Created by palfi on 2016-01-11.
  */
-class ServerPacketProcessor(private val world: World,
-                            private val messageBroadcaster: MessageBroadcaster) : PacketProcessor {
+class UdpPacketProcessor(private val world: World,
+                         private val messageBroadcaster: MessageBroadcaster) : PacketProcessor {
 
     private val messageSender: MessageSender = ServerMessageSender()
     private val players: MutableMap<Client, Player> = HashMap(11)
@@ -52,13 +53,13 @@ class ServerPacketProcessor(private val world: World,
     }
 
     private fun sendAckToClient(client: Client, time: Long) {
-        messageSender.send(client, ServerMessage(REG_ACK))
+        messageSender.send(client, TcpServerMessage(REG_ACK))
         clientsToAcks.put(client, time)
     }
 
     override fun process(packet: DatagramPacket) {
         try {
-            val clientMessage = Converter.byteArrayToMessage(packet.data)
+            val clientMessage = Converter.byteArrayToTcpMessage(packet.data)
             when (clientMessage.messageType) {
                 REGISTRATION -> {
                     handleRegistration(clientMessage, packet)
@@ -87,7 +88,7 @@ class ServerPacketProcessor(private val world: World,
         }
     }
 
-    private fun handleRegistration(clientMessage: ClientMessage, packet: DatagramPacket) {
+    private fun handleRegistration(clientMessage: TcpClientMessage, packet: DatagramPacket) {
         clientMessage.deviceName?.let {
             messageBroadcaster.clientConnected()
             val client = Client(packet.address, PORT, clientMessage.deviceName)
@@ -107,7 +108,7 @@ class ServerPacketProcessor(private val world: World,
         }
         if (world.gameState == GameState.WAITING_FOR_START) {
             world.gameState = GameState.RUNNING
-            world.start(players)
+            world.start()
         }
     }
 

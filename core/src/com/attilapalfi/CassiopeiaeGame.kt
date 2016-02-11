@@ -1,7 +1,7 @@
 package com.attilapalfi
 
 import com.attilapalfi.common.*
-import com.attilapalfi.network.ServerPacketProcessor
+import com.attilapalfi.network.UdpPacketProcessor
 import com.attilapalfi.game.World
 import com.attilapalfi.network.*
 import com.badlogic.gdx.ApplicationListener
@@ -17,7 +17,7 @@ class CassiopeiaeGame : ApplicationListener {
     private val img = Texture("badlogic.jpg")
     private val world = World()
     private val broadcaster: MessageBroadcaster = DiscoveryBroadcaster(PORT, 1)
-    private val packetProcessor: PacketProcessor = ServerPacketProcessor(world, broadcaster)
+    private val packetProcessor: PacketProcessor = UdpPacketProcessor(world, broadcaster)
     private val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
 
     override fun create() {

@@ -1,14 +1,17 @@
 package com.attilapalfi.network
 
 import com.attilapalfi.common.MessageBuffer
+import com.attilapalfi.common.SignalProcessor
+import com.attilapalfi.common.TCP_BUFFER_BUFFER_SIZE
 import com.attilapalfi.common.messages.MESSAGE_END
 
 /**
  * Created by palfi on 2016-02-07.
  */
-class TcpMessageBuffer : MessageBuffer {
+class TcpMessageBuffer(private val tcpServer: TcpServer,
+                       private val signalProcessor: SignalProcessor) : MessageBuffer {
 
-    private val buffer = ByteArray(1500)
+    private val buffer = ByteArray(TCP_BUFFER_BUFFER_SIZE)
     private var currentBufferSize: Int = 0
 
     override fun tryToProcess(array: ByteArray, readBytes: Int) {
@@ -34,7 +37,7 @@ class TcpMessageBuffer : MessageBuffer {
     private fun processMessage(messageEndIndex: Int) {
         val messageBytes: ByteArray = buffer.copyOfRange(0, messageEndIndex)
         truncateBuffer(messageEndIndex)
-
+        signalProcessor.processMessage(messageBytes, tcpServer.clientIp, tcpServer.clientPort)
     }
 
     private fun truncateBuffer(messageEnd: Int) {

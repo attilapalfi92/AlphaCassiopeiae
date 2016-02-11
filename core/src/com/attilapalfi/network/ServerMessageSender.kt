@@ -1,6 +1,6 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.messages.ServerMessage
+import com.attilapalfi.common.messages.TcpServerMessage
 import org.apache.commons.lang3.SerializationUtils
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -12,12 +12,12 @@ class ServerMessageSender : MessageSender {
 
     private val socket = DatagramSocket()
 
-    override fun send(client: Client, message: ServerMessage) {
+    override fun send(client: Client, message: TcpServerMessage) {
         val payload: ByteArray = messageToByteArray(message)
         socket.send(DatagramPacket(payload, payload.size, client.IP, client.port))
     }
 
-    private fun messageToByteArray(message: ServerMessage): ByteArray
+    private fun messageToByteArray(message: TcpServerMessage): ByteArray
             = SerializationUtils.serialize(message)
 
     override fun close() {

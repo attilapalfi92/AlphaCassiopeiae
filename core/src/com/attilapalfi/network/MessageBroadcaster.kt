@@ -7,4 +7,5 @@ interface MessageBroadcaster {
     fun startBroadcasting()
     fun clientConnected()
     fun clientDisconnected()
+    fun clientsCleared()
 }

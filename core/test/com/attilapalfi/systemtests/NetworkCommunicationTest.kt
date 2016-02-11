@@ -8,7 +8,7 @@ import com.attilapalfi.game.World
 import com.attilapalfi.network.MessageBroadcaster
 import com.attilapalfi.network.DiscoveryBroadcaster
 import com.attilapalfi.network.ServerMessageReceiver
-import com.attilapalfi.network.ServerPacketProcessor
+import com.attilapalfi.network.UdpPacketProcessor
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
 class NetworkCommunicationTest {
     private val world = World()
     private val broadcaster: MessageBroadcaster = DiscoveryBroadcaster(PORT, 1)
-    private val packetProcessor: PacketProcessor = ServerPacketProcessor(world, broadcaster)
+    private val packetProcessor: PacketProcessor = UdpPacketProcessor(world, broadcaster)
     private val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
 
     private val scanner = Scanner(System.`in`)

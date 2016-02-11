@@ -17,7 +17,7 @@ class World {
     @Volatile
     private var running = true
     private var lastStepTime: Long = 0L
-    private var players: Map<Client, Player> = ConcurrentHashMap(11);
+    private var players: MutableMap<Client, Player> = ConcurrentHashMap(11);
 
     fun setPlayerSpeed(client: Client, speedX: Int, speedY: Int) {
         players?.let {
@@ -28,8 +28,11 @@ class World {
         }
     }
 
-    fun start(players: Map<Client, Player>) {
-        this.players = players
+    fun addPlayer(client: Client, player: Player) {
+        players.put(client, player)
+    }
+
+    fun start() {
         Thread({
             while (running) {
                 when (gameState) {
@@ -57,7 +60,7 @@ class World {
         if (lastStepTime != 0L) {
             val deltaTime = System.currentTimeMillis() - lastStepTime
 
-            players?.forEach {
+            players.forEach {
                 // step
             }
 
@@ -69,5 +72,5 @@ class World {
 
     }
 
-    fun playerCount(): Int = players?.size ?: 0
+    fun playerCount(): Int = players.size ?: 0
 }
