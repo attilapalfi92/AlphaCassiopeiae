@@ -5,7 +5,7 @@ import java.io.Serializable
 /**
  * Created by palfi on 2016-01-15.
  */
-class UdpSensorData(public val fireType: Byte,
+class UdpSensorData(public val type: Byte,
                     public val x: Float = 0f,
                     public val y: Float = 0f) : Serializable
 

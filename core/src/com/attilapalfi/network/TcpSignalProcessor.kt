@@ -1,17 +1,13 @@
 package com.attilapalfi.network
 
 import com.attilapalfi.common.SignalProcessor
-import com.attilapalfi.common.exceptions.NetworkException
 import com.attilapalfi.common.messages.*
 import com.attilapalfi.game.GameState
 import com.attilapalfi.game.Player
 import com.attilapalfi.game.World
 import com.attilapalfi.network.utlis.Converter
-import com.badlogic.gdx.Application
-import com.badlogic.gdx.Gdx
 import org.apache.commons.lang3.SerializationException
 import java.net.InetAddress
-import java.util.concurrent.Future
 
 /**
  * Created by 212461305 on 2016.02.10..
@@ -46,8 +42,8 @@ class TcpSignalProcessor(private val world: World,
     private fun handleRegistration(clientMessage: TcpClientMessage, ipAddress: InetAddress, port: Int) {
         clientMessage.deviceName?.let {
             messageBroadcaster.clientConnected()
-            val client = Client(ipAddress, port, clientMessage.deviceName)
-            world.addPlayer(client, Player())
+            val client = Client(ipAddress, port, clientMessage.deviceName, Player())
+            world.addPlayer(ipAddress, client)
             tcpServer.sendRegAck()
         }
     }

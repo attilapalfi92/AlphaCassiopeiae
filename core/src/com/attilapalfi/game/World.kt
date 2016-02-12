@@ -1,6 +1,7 @@
 package com.attilapalfi.game
 
 import com.attilapalfi.network.Client
+import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -17,19 +18,17 @@ class World {
     @Volatile
     private var running = true
     private var lastStepTime: Long = 0L
-    private var players: MutableMap<Client, Player> = ConcurrentHashMap(11);
+    private var players: MutableMap<InetAddress, Client> = ConcurrentHashMap(11);
 
-    fun setPlayerSpeed(client: Client, speedX: Int, speedY: Int) {
-        players?.let {
-            it[client]?.let {
-                it.speedX = speedX
-                it.speedY = speedY
-            }
+    fun setPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
+        players[address]?.let {
+            it.player.speedX = speedX
+            it.player.speedY = speedY
         }
     }
 
-    fun addPlayer(client: Client, player: Player) {
-        players.put(client, player)
+    fun addPlayer(address: InetAddress, client: Client) {
+        players.put(address, client)
     }
 
     fun start() {

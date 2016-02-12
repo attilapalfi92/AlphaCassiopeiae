@@ -9,9 +9,9 @@ class Player(@Volatile
              public var y: Int = 0) {
 
     @Volatile
-    public var speedX: Int = 0
+    public var speedX: Float = 0f
     @Volatile
-    public var speedY: Int = 0
+    public var speedY: Float = 0f
     @Volatile
     public var health: Int = 100
 }

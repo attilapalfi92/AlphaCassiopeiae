@@ -17,7 +17,7 @@ class CassiopeiaeGame : ApplicationListener {
     private val img = Texture("badlogic.jpg")
     private val world = World()
     private val broadcaster: MessageBroadcaster = DiscoveryBroadcaster(PORT, 1)
-    private val packetProcessor: PacketProcessor = UdpPacketProcessor(world, broadcaster)
+    private val packetProcessor: PacketProcessor = UdpPacketProcessor(world)
     private val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
 
     override fun create() {

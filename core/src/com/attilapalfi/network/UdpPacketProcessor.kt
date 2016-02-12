@@ -1,86 +1,33 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.PORT
 import com.attilapalfi.common.PacketProcessor
-import com.attilapalfi.common.messages.*
-import com.attilapalfi.game.GameState
-import com.attilapalfi.game.Player
+import com.attilapalfi.common.messages.SENSOR_DATA
+import com.attilapalfi.common.messages.SHITBOMB
+import com.attilapalfi.common.messages.SHOOT
+import com.attilapalfi.common.messages.UdpSensorData
 import com.attilapalfi.game.World
 import com.attilapalfi.network.utlis.Converter
 import org.apache.commons.lang3.SerializationException
 import java.net.DatagramPacket
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
+import java.net.InetAddress
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class UdpPacketProcessor(private val world: World,
-                         private val messageBroadcaster: MessageBroadcaster) : PacketProcessor {
-
-    private val messageSender: MessageSender = ServerMessageSender()
-    private val players: MutableMap<Client, Player> = HashMap(11)
-
-    private val clientsToAcks: MutableMap<Client, Long> = ConcurrentHashMap()
-    private val waitObject = Object()
-
-    init {
-        createAckReSenderThread().start()
-    }
-
-    private fun createAckReSenderThread(): Thread {
-        return Thread({
-            while (true) {
-                synchronized(waitObject) {
-                    if (clientsToAcks.isEmpty()) {
-                        waitObject.wait()
-                    } else {
-                        resendAckOnTimeout()
-                        Thread.sleep(250)
-                    }
-                }
-            }
-        })
-    }
-
-    private fun resendAckOnTimeout() {
-        val currentTime = System.currentTimeMillis()
-        for ((client, lastTime) in clientsToAcks) {
-            if (currentTime - lastTime > 1000) {
-                sendAckToClient(client, currentTime)
-            }
-        }
-    }
-
-    private fun sendAckToClient(client: Client, time: Long) {
-        messageSender.send(client, TcpServerMessage(REG_ACK))
-        clientsToAcks.put(client, time)
-    }
+class UdpPacketProcessor(private val world: World) : PacketProcessor {
 
     override fun process(packet: DatagramPacket) {
         try {
-            val clientMessage = Converter.byteArrayToTcpMessage(packet.data)
-            when (clientMessage.messageType) {
-                REGISTRATION -> {
-                    handleRegistration(clientMessage, packet)
-                }
-                START -> {
-                    handleStart(packet)
-                }
+            val sensorData = Converter.byteArrayToSensorData(packet.data)
+            when (sensorData.type) {
                 SENSOR_DATA -> {
-
+                    world.setPlayerSpeed(packet.address, sensorData.x, sensorData.y)
                 }
                 SHOOT -> {
-
+                    handleShoot(packet.address, sensorData)
                 }
                 SHITBOMB -> {
-
-                }
-                PAUSE -> {
-
-                }
-                RESUME -> {
-
+                    handleShitBomb(packet.address, sensorData)
                 }
             }
         } catch (e: SerializationException) {
@@ -88,29 +35,11 @@ class UdpPacketProcessor(private val world: World,
         }
     }
 
-    private fun handleRegistration(clientMessage: TcpClientMessage, packet: DatagramPacket) {
-        clientMessage.deviceName?.let {
-            messageBroadcaster.clientConnected()
-            val client = Client(packet.address, PORT, clientMessage.deviceName)
-            players.put(client, Player())
-            sendAckToClient(client, System.currentTimeMillis())
-            synchronized(waitObject) { waitObject.notify() }
-            world.gameState = GameState.WAITING_FOR_START
-        }
+    private fun handleShoot(packet: InetAddress, sensorData: UdpSensorData) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun handleStart(packet: DatagramPacket) {
-        for ((client, lastTime) in clientsToAcks) {
-            if (client.IP == packet.address) {
-                clientsToAcks.remove(client)
-                break
-            }
-        }
-        if (world.gameState == GameState.WAITING_FOR_START) {
-            world.gameState = GameState.RUNNING
-            world.start()
-        }
+    private fun handleShitBomb(address: InetAddress?, sensorData: UdpSensorData) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
-    override fun playerCount(): Int = players.size
 }
