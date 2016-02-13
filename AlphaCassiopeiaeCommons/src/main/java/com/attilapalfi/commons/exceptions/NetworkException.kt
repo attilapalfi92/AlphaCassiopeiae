@@ -1,4 +1,4 @@
-package com.attilapalfi.common.exceptions
+package com.attilapalfi.commons.exceptions
 
 /**
  * Created by 212461305 on 2016.02.11..

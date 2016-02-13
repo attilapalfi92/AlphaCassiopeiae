@@ -1,12 +1,12 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.PacketProcessor
-import com.attilapalfi.common.messages.SENSOR_DATA
-import com.attilapalfi.common.messages.SHITBOMB
-import com.attilapalfi.common.messages.SHOOT
-import com.attilapalfi.common.messages.UdpSensorData
+import com.attilapalfi.commons.UdpPacketProcessor
+import com.attilapalfi.commons.messages.SENSOR_DATA
+import com.attilapalfi.commons.messages.SHITBOMB
+import com.attilapalfi.commons.messages.SHOOT
+import com.attilapalfi.commons.messages.UdpSensorData
+import com.attilapalfi.commons.utlis.ServerMessageConverter
 import com.attilapalfi.game.World
-import com.attilapalfi.network.utlis.Converter
 import org.apache.commons.lang3.SerializationException
 import java.net.DatagramPacket
 import java.net.InetAddress
@@ -14,11 +14,11 @@ import java.net.InetAddress
 /**
  * Created by palfi on 2016-01-11.
  */
-class UdpPacketProcessor(private val world: World) : PacketProcessor {
+class ServerUdpPacketProcessor(private val world: World) : UdpPacketProcessor {
 
     override fun process(packet: DatagramPacket) {
         try {
-            val sensorData = Converter.byteArrayToSensorData(packet.data)
+            val sensorData = ServerMessageConverter.byteArrayToSensorData(packet.data)
             when (sensorData.type) {
                 SENSOR_DATA -> {
                     world.setPlayerSpeed(packet.address, sensorData.x, sensorData.y)

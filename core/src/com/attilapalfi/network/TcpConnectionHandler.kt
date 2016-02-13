@@ -1,13 +1,15 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.BUFFER_SIZE
-import com.attilapalfi.common.MessageBuffer
-import com.attilapalfi.common.messages.MESSAGE_END
-import com.attilapalfi.common.messages.REG_ACK
-import com.attilapalfi.common.messages.START_ACK
-import com.attilapalfi.common.messages.TcpServerMessage
+import com.attilapalfi.commons.BUFFER_SIZE
+import com.attilapalfi.commons.IntelligentTcpMessageBuffer
+import com.attilapalfi.commons.TcpMessageBuffer
+import com.attilapalfi.commons.UdpMessageBroadcaster
+import com.attilapalfi.commons.messages.MESSAGE_END
+import com.attilapalfi.commons.messages.REG_ACK
+import com.attilapalfi.commons.messages.START_ACK
+import com.attilapalfi.commons.messages.TcpServerMessage
+import com.attilapalfi.commons.utlis.ServerMessageConverter
 import com.attilapalfi.game.World
-import com.attilapalfi.network.utlis.Converter
 import com.badlogic.gdx.Gdx
 import java.io.IOException
 import java.net.InetAddress
@@ -18,23 +20,23 @@ import java.net.Socket
 /**
  * Created by palfi on 2016-02-06.
  */
-class TcpServer(world: World, messageBroadcaster: MessageBroadcaster,
-                communicationManager: CommunicationManager) : Thread() {
+class TcpConnectionHandler(world: World, messageBroadcaster: UdpMessageBroadcaster,
+                           communicationManager: CommunicationManager) : Thread() {
 
-    val address: InetAddress
-    val port: Int
+    val serverAddress: InetAddress
+    val serverPort: Int
     private val serverSocket: ServerSocket = ServerSocket()
     private val connection: Socket by lazy { serverSocket.accept() }
     val clientIp: InetAddress by lazy { connection.inetAddress }
     val clientPort: Int by lazy { connection.port }
 
-    private val messageBuffer: MessageBuffer = TcpMessageBuffer(this,
-            TcpSignalProcessor(world, this, messageBroadcaster, communicationManager))
+    private val tcpMessageBuffer: TcpMessageBuffer =
+            IntelligentTcpMessageBuffer(ServerTcpSignalProcessor(world, this, messageBroadcaster, communicationManager))
 
     init {
         serverSocket.bind(null)
-        address = serverSocket.inetAddress
-        port = serverSocket.localPort
+        serverAddress = serverSocket.inetAddress
+        serverPort = serverSocket.localPort
     }
 
     override fun run() {
@@ -47,7 +49,7 @@ class TcpServer(world: World, messageBroadcaster: MessageBroadcaster,
                     while (readBytes != -1) {
                         readBytes = it.read(array)
                         if (readBytes != -1) {
-                            messageBuffer.tryToProcess(array, readBytes)
+                            tcpMessageBuffer.tryToProcess(array, readBytes)
                         }
                     }
                 }
@@ -59,13 +61,13 @@ class TcpServer(world: World, messageBroadcaster: MessageBroadcaster,
 
     @Synchronized
     fun sendRegAck() {
-        val message = Converter.tcpMessageToByteArray(TcpServerMessage(REG_ACK)) + MESSAGE_END
+        val message = ServerMessageConverter.tcpMessageToByteArray(TcpServerMessage(REG_ACK)) + MESSAGE_END
         connection.outputStream.use { it.write(message) }
     }
 
     @Synchronized
     fun sendStartAck() {
-        val message = Converter.tcpMessageToByteArray(TcpServerMessage(START_ACK)) + MESSAGE_END
+        val message = ServerMessageConverter.tcpMessageToByteArray(TcpServerMessage(START_ACK)) + MESSAGE_END
         connection.outputStream.use { it.write(message) }
     }
 

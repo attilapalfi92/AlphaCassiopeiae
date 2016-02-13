@@ -1,15 +1,16 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.messages.DISCOVERY_BROADCAST
-import com.attilapalfi.common.messages.TcpServerMessage
-import com.attilapalfi.network.utlis.Converter
+import com.attilapalfi.commons.UdpMessageBroadcaster
+import com.attilapalfi.commons.messages.DISCOVERY_BROADCAST
+import com.attilapalfi.commons.messages.TcpServerMessage
+import com.attilapalfi.commons.utlis.ServerMessageConverter
 import java.net.*
 
 /**
  * Created by palfi on 2016-01-11.
  */
 class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
-        MessageBroadcaster {
+        UdpMessageBroadcaster {
 
     private val socket: DatagramSocket by lazy { DatagramSocket().apply { broadcast = true } }
     private val broadcastMessage: ByteArray
@@ -25,7 +26,7 @@ class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
         if (maxPlayers < 1) {
             throw IllegalStateException("maxPlayers must be at least 1.")
         }
-        this.broadcastMessage = Converter.tcpMessageToByteArray(TcpServerMessage(DISCOVERY_BROADCAST))
+        this.broadcastMessage = ServerMessageConverter.tcpMessageToByteArray(TcpServerMessage(DISCOVERY_BROADCAST))
     }
 
     @Synchronized

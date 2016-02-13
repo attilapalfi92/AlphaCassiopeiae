@@ -1,9 +1,9 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.BUFFER_SIZE
-import com.attilapalfi.common.MessageReceiver
-import com.attilapalfi.common.PORT
-import com.attilapalfi.common.PacketProcessor
+import com.attilapalfi.commons.BUFFER_SIZE
+import com.attilapalfi.commons.UDP_PORT
+import com.attilapalfi.commons.UdpPacketProcessor
+import com.attilapalfi.commons.UdpPacketReceiver
 import com.badlogic.gdx.Gdx
 import java.io.IOException
 import java.net.DatagramPacket
@@ -13,11 +13,11 @@ import java.net.InetAddress
 /**
  * Created by palfi on 2016-01-11.
  */
-class ServerMessageReceiver(private val packetProcessor: PacketProcessor) : MessageReceiver {
+class SensorDataReceiver(private val packetProcessor: UdpPacketProcessor) : UdpPacketReceiver {
 
     @Volatile
     private var started = false
-    private val socket = DatagramSocket(PORT)
+    private val socket = DatagramSocket(UDP_PORT)
     private val localHost = InetAddress.getLocalHost()
     private val thread: Thread by lazy { newThread() }
 
@@ -43,7 +43,7 @@ class ServerMessageReceiver(private val packetProcessor: PacketProcessor) : Mess
         }
     }
 
-    private fun receive(socket: DatagramSocket, packetProcessor: PacketProcessor) {
+    private fun receive(socket: DatagramSocket, packetProcessor: UdpPacketProcessor) {
         val buffer: ByteArray = ByteArray(BUFFER_SIZE)
         val packet = DatagramPacket(buffer, buffer.size)
         socket.receive(packet)
@@ -53,7 +53,7 @@ class ServerMessageReceiver(private val packetProcessor: PacketProcessor) : Mess
     }
 
     override fun stopReceiving() {
-        socket.disconnect()
+        socket.close()
     }
 
     override fun started(): Boolean = started

@@ -1,6 +1,7 @@
-package com.attilapalfi.common
+package com.attilapalfi.commons
 
 import java.net.InetAddress
+import kotlin.jvm.javaClass
 
 /**
  * Created by palfi on 2016-01-14.

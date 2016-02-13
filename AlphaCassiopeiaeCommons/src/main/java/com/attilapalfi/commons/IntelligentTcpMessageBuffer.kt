@@ -1,15 +1,13 @@
-package com.attilapalfi.network
+package com.attilapalfi.commons
 
-import com.attilapalfi.common.MessageBuffer
-import com.attilapalfi.common.SignalProcessor
-import com.attilapalfi.common.TCP_BUFFER_BUFFER_SIZE
-import com.attilapalfi.common.messages.MESSAGE_END
+import com.attilapalfi.commons.messages.MESSAGE_END
+import com.attilapalfi.commons.TcpMessageBuffer
+import com.attilapalfi.commons.TcpSignalProcessor
 
 /**
- * Created by palfi on 2016-02-07.
+ * Created by palfi on 2016-02-13.
  */
-class TcpMessageBuffer(private val tcpServer: TcpServer,
-                       private val signalProcessor: SignalProcessor) : MessageBuffer {
+open class IntelligentTcpMessageBuffer(private val signalProcessor: TcpSignalProcessor) : TcpMessageBuffer {
 
     private val buffer = ByteArray(TCP_BUFFER_BUFFER_SIZE)
     private var currentBufferSize: Int = 0
@@ -37,7 +35,7 @@ class TcpMessageBuffer(private val tcpServer: TcpServer,
     private fun processMessage(messageEndIndex: Int) {
         val messageBytes: ByteArray = buffer.copyOfRange(0, messageEndIndex)
         truncateBuffer(messageEndIndex)
-        signalProcessor.processMessage(messageBytes, tcpServer.clientIp, tcpServer.clientPort)
+        signalProcessor.process(messageBytes)
     }
 
     private fun truncateBuffer(messageEnd: Int) {

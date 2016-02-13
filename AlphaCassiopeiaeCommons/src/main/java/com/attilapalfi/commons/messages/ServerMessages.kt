@@ -1,4 +1,4 @@
-package com.attilapalfi.common.messages
+package com.attilapalfi.commons.messages
 
 import java.io.Serializable
 

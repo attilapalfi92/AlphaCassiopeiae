@@ -1,7 +1,9 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.common.PORT
-import com.attilapalfi.common.exceptions.NetworkException
+import com.attilapalfi.commons.UDP_PORT
+import com.attilapalfi.commons.UdpMessageBroadcaster
+import com.attilapalfi.commons.UdpPacketReceiver
+import com.attilapalfi.commons.exceptions.NetworkException
 import com.attilapalfi.game.GameState
 import com.attilapalfi.game.World
 import com.badlogic.gdx.Application
@@ -16,9 +18,29 @@ import java.util.concurrent.Future
  */
 class CommunicationManager(private val world: World, private val maxTcpClients: Int) {
 
-    private var tcpServers: List<TcpServer> = initServers()
-    private val tcpSendingExecutor: ExecutorService = Executors.newFixedThreadPool(maxTcpClients)
-    private val discoveryBroadCaster: MessageBroadcaster = DiscoveryBroadcaster(PORT, maxTcpClients)
+    private var tcpConnectionHandlers: List<TcpConnectionHandler> = initTcpConnectionHandlers()
+
+    private val tcpSendingExecutor: ExecutorService
+            = Executors.newFixedThreadPool(maxTcpClients)
+
+    private val discoveryBroadCaster: UdpMessageBroadcaster
+            = DiscoveryBroadcaster(UDP_PORT, maxTcpClients)
+
+    private val sensorDataReceiver: UdpPacketReceiver
+            = SensorDataReceiver(ServerUdpPacketProcessor(world))
+
+    fun startUdpCommunication() {
+        startReceivingUdpPackets()
+        startSendingDiscoveryBroadcast()
+    }
+
+    private fun startReceivingUdpPackets() {
+        sensorDataReceiver.startReceiving()
+    }
+
+    private fun startSendingDiscoveryBroadcast() {
+        discoveryBroadCaster.startBroadcasting()
+    }
 
     @Synchronized
     fun gameStateChanged(gameState: GameState) {
@@ -36,9 +58,9 @@ class CommunicationManager(private val world: World, private val maxTcpClients: 
     @Synchronized
     fun sendStartAcksToClients() {
         val ackFutures: List<Future<out Any?>>
-                = tcpServers.filter { it.isConnected() }.map { tcpSendingExecutor.submit { it.sendStartAck() } }
+                = tcpConnectionHandlers.filter { it.isConnected() }.map { tcpSendingExecutor.submit { it.sendStartAck() } }
 
-        waitForFutures(ackFutures) // TODO: handle failure better
+        waitForFutures(ackFutures)
     }
 
     private fun waitForFutures(ackFutures: List<Future<out Any?>>) {
@@ -47,7 +69,7 @@ class CommunicationManager(private val world: World, private val maxTcpClients: 
                 it.get()
             }
         } catch (e: Exception) {
-            handleError(e)
+            handleError(e) // TODO: handle failure better
         }
     }
 
@@ -64,14 +86,14 @@ class CommunicationManager(private val world: World, private val maxTcpClients: 
     }
 
     private fun restartTcpServers() {
-        tcpServers.forEach { it.interrupt() }
-        tcpServers = initServers()
+        tcpConnectionHandlers.forEach { it.interrupt() }
+        tcpConnectionHandlers = initTcpConnectionHandlers()
     }
 
-    private fun initServers(): ArrayList<TcpServer> {
-        return ArrayList<TcpServer>().apply {
+    private fun initTcpConnectionHandlers(): List<TcpConnectionHandler> {
+        return ArrayList<TcpConnectionHandler>().apply {
             for (i in 1..maxTcpClients) {
-                add(TcpServer(world, discoveryBroadCaster, this@CommunicationManager).apply { start() })
+                add(TcpConnectionHandler(world, discoveryBroadCaster, this@CommunicationManager).apply { start() })
             }
         }
     }

@@ -13,6 +13,7 @@ eclipse.project {
 buildscript {
     ext.kotlin_version = '1.0.0-rc-1036'
     repositories {
+        mavenLocal()
         mavenCentral()
     }
     dependencies {
@@ -20,12 +21,14 @@ buildscript {
     }
 }
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 dependencies {
+    compile "com.attilapalfi:AlphaCassiopeiaeCommons:1.0-SNAPSHOT"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'junit:junit:4.12'
     compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'junit:junit:4.12'
 }
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'

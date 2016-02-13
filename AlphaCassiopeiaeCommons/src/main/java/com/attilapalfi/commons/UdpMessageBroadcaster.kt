@@ -1,9 +1,9 @@
-package com.attilapalfi.network
+package com.attilapalfi.commons
 
 /**
  * Created by palfi on 2016-01-13.
  */
-interface MessageBroadcaster {
+interface UdpMessageBroadcaster {
     fun startBroadcasting()
     fun clientConnected()
     fun clientDisconnected()

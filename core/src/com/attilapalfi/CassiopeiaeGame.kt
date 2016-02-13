@@ -1,9 +1,8 @@
 package com.attilapalfi
 
-import com.attilapalfi.common.*
-import com.attilapalfi.network.UdpPacketProcessor
+import com.attilapalfi.commons.DEFAULT_MAX_USERS
 import com.attilapalfi.game.World
-import com.attilapalfi.network.*
+import com.attilapalfi.network.CommunicationManager
 import com.badlogic.gdx.ApplicationListener
 import com.badlogic.gdx.Files.FileType
 import com.badlogic.gdx.Gdx
@@ -16,14 +15,10 @@ class CassiopeiaeGame : ApplicationListener {
     private val batch = SpriteBatch()
     private val img = Texture("badlogic.jpg")
     private val world = World()
-    private val broadcaster: MessageBroadcaster = DiscoveryBroadcaster(PORT, 1)
-    private val packetProcessor: PacketProcessor = UdpPacketProcessor(world)
-    private val messageReceiver: MessageReceiver = ServerMessageReceiver(packetProcessor)
+    private val communicationManager = CommunicationManager(world, DEFAULT_MAX_USERS)
 
     override fun create() {
-        messageReceiver.startReceiving()
-        broadcaster.startBroadcasting()
-
+        communicationManager.startUdpCommunication()
         playMusic()
     }
 
@@ -31,9 +26,9 @@ class CassiopeiaeGame : ApplicationListener {
         Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.render()
-//        batch.begin()
-//        batch.draw(img, 0f, 0f)
-//        batch.end()
+        //        batch.begin()
+        //        batch.draw(img, 0f, 0f)
+        //        batch.end()
     }
 
     override fun pause() {
