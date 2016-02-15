@@ -1,9 +1,9 @@
-package com.attilapalfi.commons.exceptions
+package com.attilapalfi.exception
 
 /**
- * Created by 212461305 on 2016.02.11..
+ * Created by palfi on 2016-02-14.
  */
-class NetworkException : Exception {
+class ConnectionException : Exception {
     constructor() : super()
 
     constructor(p0: String?) : super(p0)

@@ -4,11 +4,9 @@ import com.attilapalfi.commons.UDP_PORT
 import com.attilapalfi.commons.UdpMessageBroadcaster
 import com.attilapalfi.commons.UdpPacketReceiver
 import com.attilapalfi.commons.exceptions.NetworkException
-import com.attilapalfi.game.GameState
 import com.attilapalfi.game.World
-import com.badlogic.gdx.Application
-import com.badlogic.gdx.Gdx
-import java.util.*
+import com.attilapalfi.logger.logError
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -16,15 +14,15 @@ import java.util.concurrent.Future
 /**
  * Created by 212461305 on 2016.02.10..
  */
-class CommunicationManager(private val world: World, private val maxTcpClients: Int) {
-
-    private var tcpConnectionHandlers: List<TcpConnectionHandler> = initTcpConnectionHandlers()
-
-    private val tcpSendingExecutor: ExecutorService
-            = Executors.newFixedThreadPool(maxTcpClients)
+class CommunicationManager(private val world: World, private val maxTcpClients: Int) : AckSender, TcpConnectionManager {
 
     private val discoveryBroadCaster: UdpMessageBroadcaster
             = DiscoveryBroadcaster(UDP_PORT, maxTcpClients)
+
+    private var tcpConnectionHandlers: ConcurrentHashMap<TcpConnection, Int> = initTcpConnectionHandlers()
+
+    private val tcpSendingExecutor: ExecutorService
+            = Executors.newFixedThreadPool(maxTcpClients)
 
     private val sensorDataReceiver: UdpPacketReceiver
             = SensorDataReceiver(ServerUdpPacketProcessor(world))
@@ -34,33 +32,26 @@ class CommunicationManager(private val world: World, private val maxTcpClients: 
         startSendingDiscoveryBroadcast()
     }
 
-    private fun startReceivingUdpPackets() {
-        sensorDataReceiver.startReceiving()
-    }
-
-    private fun startSendingDiscoveryBroadcast() {
-        discoveryBroadCaster.startBroadcasting()
+    override fun onTcpConnectionDeath(tcpConnection: TcpConnection) {
+        tcpConnectionHandlers.remove(tcpConnection)
+        // it's a very unlikely scenario, no further propagation of the error
     }
 
     @Synchronized
-    fun gameStateChanged(gameState: GameState) {
-        when (gameState) {
-            GameState.WAITING_FOR_PLAYER -> {
-                restartBroadcasting()
-                restartTcpServers()
-            }
-            GameState.WAITING_FOR_START -> {
-
-            }
-        }
-    }
-
-    @Synchronized
-    fun sendStartAcksToClients() {
+    override fun sendStartAcksToClients() {
         val ackFutures: List<Future<out Any?>>
-                = tcpConnectionHandlers.filter { it.isConnected() }.map { tcpSendingExecutor.submit { it.sendStartAck() } }
-
+                = tcpConnectionHandlers.filter { it.key.isConnected() }.map { tcpSendingExecutor.submit { it.key.sendStartAck() } }
         waitForFutures(ackFutures)
+    }
+
+    @Synchronized
+    override fun sendPauseAcksToClients() {
+        throw UnsupportedOperationException()
+    }
+
+    @Synchronized
+    override fun sendResumeAcksToClients() {
+        throw UnsupportedOperationException()
     }
 
     private fun waitForFutures(ackFutures: List<Future<out Any?>>) {
@@ -74,10 +65,17 @@ class CommunicationManager(private val world: World, private val maxTcpClients: 
     }
 
     private fun handleError(e: Exception) {
-        Gdx.app.logLevel = Application.LOG_ERROR
         val thrown = NetworkException("Error happened during sending START_ACK to clients.", e)
-        Gdx.app.log("SignalProcessor", thrown.toString())
+        logError("SignalProcessor", thrown.toString())
         throw thrown
+    }
+
+    private fun startReceivingUdpPackets() {
+        sensorDataReceiver.startReceiving()
+    }
+
+    private fun startSendingDiscoveryBroadcast() {
+        discoveryBroadCaster.startBroadcasting()
     }
 
     private fun restartBroadcasting() {
@@ -86,14 +84,15 @@ class CommunicationManager(private val world: World, private val maxTcpClients: 
     }
 
     private fun restartTcpServers() {
-        tcpConnectionHandlers.forEach { it.interrupt() }
+        tcpConnectionHandlers.forEach { it.key.disconnect() }
         tcpConnectionHandlers = initTcpConnectionHandlers()
     }
 
-    private fun initTcpConnectionHandlers(): List<TcpConnectionHandler> {
-        return ArrayList<TcpConnectionHandler>().apply {
+    private fun initTcpConnectionHandlers(): ConcurrentHashMap<TcpConnection, Int> {
+        return ConcurrentHashMap<TcpConnection, Int>().apply {
             for (i in 1..maxTcpClients) {
-                add(TcpConnectionHandler(world, discoveryBroadCaster, this@CommunicationManager).apply { start() })
+                put(TcpConnection(world, discoveryBroadCaster,
+                        this@CommunicationManager, this@CommunicationManager).apply { start() }, 1)
             }
         }
     }

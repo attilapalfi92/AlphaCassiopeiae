@@ -1,1 +1,1 @@
-include 'desktop', 'core', 'AlphaCassiopeiaeCommons'
+include 'desktop', 'core'
