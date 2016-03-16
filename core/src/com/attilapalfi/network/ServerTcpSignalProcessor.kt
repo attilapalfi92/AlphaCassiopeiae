@@ -1,13 +1,12 @@
 package com.attilapalfi.network
 
 import com.attilapalfi.commons.TcpSignalProcessor
-import com.attilapalfi.commons.UdpMessageBroadcaster
 import com.attilapalfi.commons.messages.*
 import com.attilapalfi.commons.utlis.ClientMessageConverter
 import com.attilapalfi.exception.ConnectionException
-import com.attilapalfi.game.GameState
-import com.attilapalfi.game.Player
-import com.attilapalfi.game.World
+import com.attilapalfi.logic.GameState
+import com.attilapalfi.logic.Player
+import com.attilapalfi.logic.World
 import org.apache.commons.lang3.SerializationException
 import java.net.InetAddress
 
@@ -16,7 +15,7 @@ import java.net.InetAddress
  */
 class ServerTcpSignalProcessor(private val world: World,
                                private val tcpConnection: TcpConnection,
-                               private val messageBroadcaster: UdpMessageBroadcaster,
+                               private val tcpConnectionManager: TcpConnectionManager,
                                private val ackSender: AckSender) : TcpSignalProcessor {
 
     override fun process(messageBytes: ByteArray) {
@@ -52,8 +51,8 @@ class ServerTcpSignalProcessor(private val world: World,
     }
 
     private fun handleRegistration(clientMessage: TcpClientMessage, ipAddress: InetAddress, port: Int) {
-        messageBroadcaster.clientConnected()
         val client = Client(ipAddress, port, clientMessage.deviceName as String, Player())
+        tcpConnectionManager.clientConnected(client)
         world.addPlayer(ipAddress, client)
         tcpConnection.sendRegAck()
     }

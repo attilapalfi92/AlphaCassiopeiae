@@ -1,20 +1,17 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.commons.UdpMessageBroadcaster
-import com.attilapalfi.commons.messages.DISCOVERY_BROADCAST
-import com.attilapalfi.commons.messages.TcpServerMessage
+import com.attilapalfi.commons.messages.UdpDiscoveryBroadcast
 import com.attilapalfi.commons.utlis.ServerMessageConverter
 import java.net.*
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
+class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
+                           private val port: Int, private val maxPlayers: Int) :
         UdpMessageBroadcaster {
 
     private val socket: DatagramSocket by lazy { DatagramSocket().apply { broadcast = true } }
-    private val broadcastMessage: ByteArray
-
     private val broadcastAddresses: List<InetAddress> = filterBroadcastAddresses(collectValidNetworkInterfaceAddresses())
 
     @Volatile
@@ -26,7 +23,6 @@ class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
         if (maxPlayers < 1) {
             throw IllegalStateException("maxPlayers must be at least 1.")
         }
-        this.broadcastMessage = ServerMessageConverter.tcpMessageToByteArray(TcpServerMessage(DISCOVERY_BROADCAST))
     }
 
     @Synchronized
@@ -47,6 +43,8 @@ class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
     private fun sendDiscoveryBroadcast() {
         if (connectedClients < maxPlayers) {
             broadcastAddresses.forEach {
+                val broadcastMessage = ServerMessageConverter
+                        .udpDiscoveryToByteArray(UdpDiscoveryBroadcast(availableTcpPorts))
                 socket.send(DatagramPacket(broadcastMessage, broadcastMessage.size, it, port))
             }
         }
@@ -60,14 +58,15 @@ class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
     }
 
     @Synchronized
-    override fun clientConnected() {
+    override fun clientConnected(clientPort: Int) {
         if (connectedClients < maxPlayers) {
             connectedClients++
         }
+        availableTcpPorts.remove(clientPort)
     }
 
     @Synchronized
-    override fun clientDisconnected() {
+    override fun clientDisconnected(clientPort: Int) {
         if (connectedClients > 0) {
             connectedClients--;
         }
@@ -76,6 +75,10 @@ class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
     @Synchronized
     override fun clientsCleared() {
         connectedClients = 0
+    }
+
+    override fun addNewAvailablePort(clientPort: Int) {
+        availableTcpPorts.add(clientPort)
     }
 
     private fun filterBroadcastAddresses(interfaceAddresses: List<InterfaceAddress>): List<InetAddress> {

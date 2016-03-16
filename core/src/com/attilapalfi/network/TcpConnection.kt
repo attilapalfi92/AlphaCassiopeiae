@@ -10,7 +10,7 @@ import com.attilapalfi.commons.messages.START_ACK
 import com.attilapalfi.commons.messages.TcpServerMessage
 import com.attilapalfi.commons.utlis.ServerMessageConverter
 import com.attilapalfi.exception.ConnectionException
-import com.attilapalfi.game.World
+import com.attilapalfi.logic.World
 import com.attilapalfi.logger.logInfo
 import java.net.InetAddress
 import java.net.ServerSocket
@@ -21,8 +21,7 @@ import java.net.SocketException
 /**
  * Created by palfi on 2016-02-06.
  */
-class TcpConnection(world: World, messageBroadcaster: UdpMessageBroadcaster,
-                    ackSender: AckSender,
+class TcpConnection(world: World, ackSender: AckSender,
                     private val connectionManager: TcpConnectionManager) {
 
     val serverPort: Int
@@ -42,7 +41,7 @@ class TcpConnection(world: World, messageBroadcaster: UdpMessageBroadcaster,
         private set
 
     private val tcpMessageBuffer: TcpMessageBuffer =
-            IntelligentTcpMessageBuffer(ServerTcpSignalProcessor(world, this, messageBroadcaster, ackSender))
+            IntelligentTcpMessageBuffer(ServerTcpSignalProcessor(world, this, connectionManager, ackSender))
 
     init {
         serverSocket.bind(null)

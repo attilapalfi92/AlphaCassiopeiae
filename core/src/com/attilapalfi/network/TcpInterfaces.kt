@@ -11,4 +11,6 @@ interface AckSender {
 
 interface TcpConnectionManager {
     fun onTcpConnectionDeath(tcpConnection: TcpConnection)
+
+    fun clientConnected(client: Client)
 }

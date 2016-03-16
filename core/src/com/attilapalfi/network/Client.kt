@@ -1,7 +1,7 @@
 package com.attilapalfi.network
 
 import com.attilapalfi.commons.Endpoint
-import com.attilapalfi.game.Player
+import com.attilapalfi.logic.Player
 import java.net.InetAddress
 
 /**

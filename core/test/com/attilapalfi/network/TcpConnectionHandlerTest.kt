@@ -5,7 +5,7 @@ import com.attilapalfi.commons.UdpMessageBroadcaster
 import com.attilapalfi.commons.messages.*
 import com.attilapalfi.commons.utlis.ClientMessageConverter
 import com.attilapalfi.commons.utlis.ServerMessageConverter
-import com.attilapalfi.game.World
+import com.attilapalfi.logic.World
 import org.junit.Assert
 import org.junit.Test
 import org.mockito.Mockito
@@ -25,7 +25,7 @@ class TcpConnectionHandlerTest {
 
     @Test
     fun canStopProperly() {
-        val tcpConnection = TcpConnection(world, udpMessageBroadcaster, ackSender, connectionManager)
+        val tcpConnection = TcpConnection(world, ackSender, connectionManager)
         tcpConnection.start()
         Thread.sleep(200)
         tcpConnection.disconnect()
@@ -36,7 +36,7 @@ class TcpConnectionHandlerTest {
 
     @Test
     fun canReadServerProperties() {
-        val tcpConnection = TcpConnection(world, udpMessageBroadcaster, ackSender, connectionManager)
+        val tcpConnection = TcpConnection(world, ackSender, connectionManager)
         tcpConnection.start()
         Thread.sleep(200)
         Assert.assertNotNull(tcpConnection.serverPort)
@@ -44,7 +44,7 @@ class TcpConnectionHandlerTest {
 
     @Test
     fun canReadClientProperties() {
-        val tcpConnection = TcpConnection(world, udpMessageBroadcaster, ackSender, connectionManager)
+        val tcpConnection = TcpConnection(world, ackSender, connectionManager)
         tcpConnection.start()
         Thread.sleep(100)
         startClientThread(InetAddress.getByName("localhost"), tcpConnection.serverPort)
@@ -56,7 +56,7 @@ class TcpConnectionHandlerTest {
 
     @Test
     fun canSendAck() {
-        val tcpConnection = TcpConnection(world, udpMessageBroadcaster, ackSender, connectionManager)
+        val tcpConnection = TcpConnection(world, ackSender, connectionManager)
         tcpConnection.start()
         Thread.sleep(100)
         val expected = ServerMessageConverter.tcpMessageToByteArray(TcpServerMessage(REG_ACK)) + MESSAGE_END

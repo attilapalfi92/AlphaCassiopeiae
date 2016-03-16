@@ -6,7 +6,7 @@ import com.attilapalfi.commons.messages.SHITBOMB
 import com.attilapalfi.commons.messages.SHOOT
 import com.attilapalfi.commons.messages.UdpSensorData
 import com.attilapalfi.commons.utlis.ServerMessageConverter
-import com.attilapalfi.game.World
+import com.attilapalfi.logic.World
 import org.apache.commons.lang3.SerializationException
 import java.net.DatagramPacket
 import java.net.InetAddress
