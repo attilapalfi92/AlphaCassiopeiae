@@ -8,13 +8,9 @@ import java.util.concurrent.ConcurrentHashMap
  * Created by palfi on 2016-01-11.
  */
 class World {
+
     @Volatile
     var gameState: GameState = GameState.WAITING_FOR_PLAYER
-        @Synchronized
-        set
-        @Synchronized
-        get
-
     @Volatile
     private var threadIsRunning = true
     private var lastStepTime: Long = 0L
@@ -29,6 +25,10 @@ class World {
 
     fun addPlayer(address: InetAddress, client: Client) {
         players.put(address, client)
+    }
+
+    fun init() {
+
     }
 
     fun start() {
@@ -71,5 +71,5 @@ class World {
 
     }
 
-    fun playerCount(): Int = players.size ?: 0
+    fun playerCount(): Int = players.size
 }

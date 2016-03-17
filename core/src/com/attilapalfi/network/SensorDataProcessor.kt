@@ -14,14 +14,14 @@ import java.net.InetAddress
 /**
  * Created by palfi on 2016-01-11.
  */
-class ServerUdpPacketProcessor(private val world: World) : UdpPacketProcessor {
+class SensorDataProcessor(private val eventHandler: GameEventHandler) : UdpPacketProcessor {
 
     override fun process(packet: DatagramPacket) {
         try {
             val sensorData = ServerMessageConverter.byteArrayToSensorData(packet.data)
             when (sensorData.type) {
                 SENSOR_DATA -> {
-                    world.setPlayerSpeed(packet.address, sensorData.x, sensorData.y)
+                    eventHandler.onSetPlayerSpeed(packet.address, sensorData.x, sensorData.y)
                 }
                 SHOOT -> {
                     handleShoot(packet.address, sensorData)

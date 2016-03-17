@@ -13,10 +13,9 @@ import java.net.InetAddress
 /**
  * Created by 212461305 on 2016.02.10..
  */
-class ServerTcpSignalProcessor(private val world: World,
+class ServerTcpSignalProcessor(private val gameEventHandler: GameEventHandler,
                                private val tcpConnection: TcpConnection,
-                               private val tcpConnectionManager: TcpConnectionManager,
-                               private val ackSender: AckSender) : TcpSignalProcessor {
+                               private val tcpConnectionEventHandler: TcpConnectionEventHandler) : TcpSignalProcessor {
 
     override fun process(messageBytes: ByteArray) {
         try {
@@ -26,7 +25,7 @@ class ServerTcpSignalProcessor(private val world: World,
                     registration(clientMessage)
                 }
                 START -> {
-                    start()
+                    gameEventHandler.onGameStartReceived()
                 }
                 PAUSE -> {
 
@@ -52,16 +51,8 @@ class ServerTcpSignalProcessor(private val world: World,
 
     private fun handleRegistration(clientMessage: TcpClientMessage, ipAddress: InetAddress, port: Int) {
         val client = Client(ipAddress, port, clientMessage.deviceName as String, Player())
-        tcpConnectionManager.clientConnected(client)
-        world.addPlayer(ipAddress, client)
+        tcpConnectionEventHandler.clientConnected(client)
+        gameEventHandler.onPlayerJoined(ipAddress, client)
         tcpConnection.sendRegAck()
-    }
-
-    private fun start() {
-        ackSender.sendStartAcksToClients()
-        if (world.gameState == GameState.WAITING_FOR_START) {
-            world.gameState = GameState.RUNNING
-            world.start()
-        }
     }
 }

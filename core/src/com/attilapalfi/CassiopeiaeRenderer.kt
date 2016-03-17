@@ -9,4 +9,8 @@ class CassiopeiaeRenderer {
 
     private val camera = OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT)
 
+    fun render() {
+
+    }
+
 }

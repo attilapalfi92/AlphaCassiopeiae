@@ -21,8 +21,8 @@ import java.net.SocketException
 /**
  * Created by palfi on 2016-02-06.
  */
-class TcpConnection(world: World, ackSender: AckSender,
-                    private val connectionManager: TcpConnectionManager) {
+class TcpConnection(gameEventHandler: GameEventHandler,
+                    private val connectionEventHandler: TcpConnectionEventHandler) {
 
     val serverPort: Int
     private val serverSocket: ServerSocket = ServerSocket()
@@ -41,7 +41,7 @@ class TcpConnection(world: World, ackSender: AckSender,
         private set
 
     private val tcpMessageBuffer: TcpMessageBuffer =
-            IntelligentTcpMessageBuffer(ServerTcpSignalProcessor(world, this, connectionManager, ackSender))
+            IntelligentTcpMessageBuffer(ServerTcpSignalProcessor(gameEventHandler, this, connectionEventHandler))
 
     init {
         serverSocket.bind(null)
@@ -66,7 +66,7 @@ class TcpConnection(world: World, ackSender: AckSender,
             logInfo("TcpServer", "TCP Server is closed, thread run finishes. " +
                     "Server port: $serverPort, client IP: ${clientIp ?: "null"} client port: ${clientPort ?: "null"}")
         } catch (e: ConnectionException) {
-            connectionManager.onTcpConnectionDeath(this)
+            connectionEventHandler.onTcpConnectionDeath(this)
         }
     }
 

@@ -13,7 +13,7 @@ import java.net.InetAddress
 /**
  * Created by palfi on 2016-01-11.
  */
-class SensorDataReceiver(private val packetProcessor: UdpPacketProcessor) : UdpPacketReceiver {
+class SensorDataReceiver(private var packetProcessor: UdpPacketProcessor) : UdpPacketReceiver {
 
     @Volatile
     private var started = false
@@ -51,6 +51,10 @@ class SensorDataReceiver(private val packetProcessor: UdpPacketProcessor) : UdpP
             packetProcessor.process(packet)
         }
     }
+
+//    override fun setUdpPacketProcessor(packetProcessor: UdpPacketProcessor) {
+//        this.packetProcessor = packetProcessor
+//    }
 
     override fun stopReceiving() {
         socket.close()
