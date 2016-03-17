@@ -3,7 +3,7 @@ package com.attilapalfi.screens
 import com.attilapalfi.CURRENT_WINDOW_HEIGHT
 import com.attilapalfi.CURRENT_WINDOW_WIDTH
 import com.attilapalfi.commons.DEFAULT_MAX_USERS
-import com.attilapalfi.network.CommunicationManager
+import com.attilapalfi.logic.GameManager
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -19,7 +19,7 @@ import com.badlogic.gdx.math.Vector3
  */
 class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
 
-    private val communicationManager = CommunicationManager(DEFAULT_MAX_USERS)
+    private val communicationManager = GameManager(DEFAULT_MAX_USERS)
             .apply { startUdpCommunication() }
 
     private val batch = SpriteBatch()

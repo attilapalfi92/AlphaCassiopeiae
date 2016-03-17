@@ -1,11 +1,10 @@
-package com.attilapalfi.network
+package com.attilapalfi.logic
 
 import com.attilapalfi.commons.UDP_PORT
 import com.attilapalfi.commons.UdpPacketReceiver
 import com.attilapalfi.commons.exceptions.NetworkException
 import com.attilapalfi.logger.logError
-import com.attilapalfi.logic.GameState
-import com.attilapalfi.logic.World
+import com.attilapalfi.network.*
 import java.net.InetAddress
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -16,7 +15,7 @@ import java.util.concurrent.Future
 /**
  * Created by 212461305 on 2016.02.10..
  */
-class CommunicationManager(private val maxTcpClients: Int) : TcpConnectionEventHandler, GameEventHandler {
+class GameManager(private val maxTcpClients: Int) : TcpConnectionEventHandler, GameEventHandler {
 
     private var tcpConnections: ConcurrentHashMap<TcpConnection, Int> = initTcpConnections()
 
@@ -125,7 +124,7 @@ class CommunicationManager(private val maxTcpClients: Int) : TcpConnectionEventH
     private fun initTcpConnections(): ConcurrentHashMap<TcpConnection, Int> {
         return ConcurrentHashMap<TcpConnection, Int>().apply {
             for (i in 1..maxTcpClients) {
-                put(TcpConnection(this@CommunicationManager, this@CommunicationManager).apply { start() }, 1)
+                put(TcpConnection(this@GameManager, this@GameManager).apply { start() }, 1)
             }
         }
     }
