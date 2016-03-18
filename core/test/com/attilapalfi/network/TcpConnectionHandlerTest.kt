@@ -17,7 +17,7 @@ import java.net.Socket
  */
 class TcpConnectionHandlerTest {
 
-    val world: World = World()
+    val world: World = World(camera)
     val udpMessageBroadcaster: UdpMessageBroadcaster = Mockito.mock(UdpMessageBroadcaster::class.java)
     val gameEventHandler: GameEventHandler = Mockito.mock(GameEventHandler::class.java)
     val connectionEventHandler: TcpConnectionEventHandler = Mockito.mock(TcpConnectionEventHandler::class.java)

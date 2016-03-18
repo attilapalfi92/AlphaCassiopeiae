@@ -1,14 +1,11 @@
 package com.attilapalfi
 
-import com.attilapalfi.logic.World
 import com.attilapalfi.screens.IntroScreen
 import com.badlogic.gdx.Files.FileType
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 
 class CassiopeiaeGame : Game() {
-
-    private val world = World()
 
     override fun create() {
         playMusic()

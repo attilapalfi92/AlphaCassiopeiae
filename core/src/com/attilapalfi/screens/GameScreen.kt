@@ -1,6 +1,6 @@
 package com.attilapalfi.screens
 
-import com.attilapalfi.CassiopeiaeRenderer
+import com.attilapalfi.game.WorldRenderer
 import com.attilapalfi.logic.GameManager
 import com.badlogic.gdx.Game
 
@@ -9,13 +9,13 @@ import com.badlogic.gdx.Game
  */
 class GameScreen(game: Game, private val gameManager: GameManager) : CassiopeiaeScreen(game) {
 
+    private val renderer: WorldRenderer = gameManager.worldRenderer
+
     init {
         gameManager.startActualNewGame()
     }
 
-    private val renderer = CassiopeiaeRenderer()
-
     override fun render(delta: Float) {
-
+        renderer.render(delta)
     }
 }

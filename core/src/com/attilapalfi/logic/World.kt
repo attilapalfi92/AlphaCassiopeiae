@@ -1,20 +1,28 @@
 package com.attilapalfi.logic
 
+import com.attilapalfi.game.Map
+import com.attilapalfi.game.WorldRenderer
 import com.attilapalfi.network.Client
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class World {
+class World(private val lock: ReentrantLock) {
 
     @Volatile
     var gameState: GameState = GameState.WAITING_FOR_PLAYER
+
+    val renderer: WorldRenderer = WorldRenderer(this, lock)
+
+
     @Volatile
     private var threadIsRunning = true
     private var lastStepTime: Long = 0L
-    private var players: MutableMap<InetAddress, Client> = ConcurrentHashMap(11);
+    private val players: MutableMap<InetAddress, Client> = ConcurrentHashMap(11);
+    private val map = Map(lock)
 
     fun setPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
         players[address]?.let {
@@ -57,12 +65,15 @@ class World {
 
     private fun step() {
         if (lastStepTime != 0L) {
+            lock.lock()
             val deltaTime = System.currentTimeMillis() - lastStepTime
 
             players.forEach {
                 // step
             }
 
+            map.step(renderer.camera.position.x)
+            lock.unlock()
         }
         lastStepTime = System.currentTimeMillis()
     }

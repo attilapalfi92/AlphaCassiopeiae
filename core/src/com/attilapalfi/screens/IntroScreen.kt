@@ -22,9 +22,8 @@ class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
     private val communicationManager = GameManager(DEFAULT_MAX_USERS)
             .apply { startUdpCommunication() }
 
-    private val batch = SpriteBatch()
-    private val img = Texture("tom.jpg")
-    private val tomCruize = TextureRegion(img)
+    private val sprite = SpriteBatch()
+    private val tomCruize = Texture("tom.jpg")
     private var time: Float = 0f
 
     override fun render(delta: Float) {
@@ -36,9 +35,9 @@ class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
     }
 
     private fun drawTomCruize() {
-        batch.begin()
-        batch.transformMatrix = transformMatrix()
-        batch.draw(tomCruize, 0f, 0f)
+        sprite.begin()
+        sprite.transformMatrix = transformMatrix()
+        sprite.draw(tomCruize, 0f, 0f)
 
         if (time > 3) {
             if (Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()) {
@@ -46,7 +45,7 @@ class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
             }
         }
 
-        batch.end()
+        sprite.end()
     }
 
     private fun transformMatrix(): Matrix4? {
