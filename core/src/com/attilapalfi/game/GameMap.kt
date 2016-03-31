@@ -3,13 +3,16 @@ package com.attilapalfi.game
 import com.attilapalfi.WORLD_HEIGHT
 import com.attilapalfi.WORLD_WIDTH
 import com.attilapalfi.game.entities.Attila
+import com.attilapalfi.network.Client
+import java.net.InetAddress
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Created by 212461305 on 2016.03.17..
  */
-class Map(private val lock: ReentrantLock) : Renderable, Steppable {
+class GameMap(private val lock: ReentrantLock) {
 
     var currentPosition: Float = 0f
     val preCalculationSize: Float = WORLD_WIDTH / 2
@@ -25,13 +28,7 @@ class Map(private val lock: ReentrantLock) : Renderable, Steppable {
         }
     }
 
-    override fun render() {
-        lock.lock()
-        attilas.forEach { it.render() }
-        lock.unlock()
-    }
-
-    override fun step(cameraPos: Float, deltaT: Long) {
+    fun step(players: ConcurrentHashMap<InetAddress, Client>, cameraPos: Float, deltaT: Long) {
         lock.lock()
         val i = attilas.listIterator()
         while (i.hasNext()) {

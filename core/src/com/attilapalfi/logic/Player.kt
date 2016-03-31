@@ -14,4 +14,8 @@ class Player(@Volatile
     var speedY: Float = 0f
     @Volatile
     var health: Int = 100
+
+    fun step(cameraPosition: Float, deltaTime: Long) {
+
+    }
 }

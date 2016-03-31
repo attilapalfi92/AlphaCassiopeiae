@@ -1,11 +1,12 @@
 package com.attilapalfi.logic
 
-import com.attilapalfi.game.Map
+import com.attilapalfi.game.GameMap
 import com.attilapalfi.game.WorldRenderer
 import com.attilapalfi.network.Client
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
+import java.util.stream.Stream
 
 /**
  * Created by palfi on 2016-01-11.
@@ -17,12 +18,12 @@ class World(private val lock: ReentrantLock) {
 
     val renderer: WorldRenderer = WorldRenderer(this, lock)
 
-
     @Volatile
     private var threadIsRunning = true
     private var lastStepTime: Long = 0L
-    private val players: MutableMap<InetAddress, Client> = ConcurrentHashMap(11);
-    private val map = Map(lock)
+
+    private val players: ConcurrentHashMap<InetAddress, Client> = ConcurrentHashMap(11);
+    private val map = GameMap(lock)
 
     fun setPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
         players[address]?.let {
@@ -68,11 +69,11 @@ class World(private val lock: ReentrantLock) {
             lock.lock()
             val deltaTime = System.currentTimeMillis() - lastStepTime
 
-            players.forEach {
-                // step
+            for(player in players) {
+                player.value.player.step(renderer.camera.position.x, deltaTime)
             }
 
-            map.step(renderer.camera.position.x)
+            map.step(players, renderer.camera.position.x, deltaTime)
             lock.unlock()
         }
         lastStepTime = System.currentTimeMillis()

@@ -21,7 +21,6 @@ class WorldRenderer(private val world: World, private val lock: ReentrantLock) {
     fun render(deltaT: Float) {
         adjustCameraPos(deltaT)
 
-
     }
 
     fun adjustCameraPos(deltaT: Float) {
