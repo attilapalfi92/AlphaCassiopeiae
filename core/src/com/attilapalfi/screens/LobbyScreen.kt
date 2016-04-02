@@ -1,6 +1,6 @@
 package com.attilapalfi.screens
 
-import com.attilapalfi.logic.GameManager
+import com.attilapalfi.core.GameManager
 import com.badlogic.gdx.Game
 
 /**

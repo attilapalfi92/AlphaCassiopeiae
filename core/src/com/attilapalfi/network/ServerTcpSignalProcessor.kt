@@ -4,9 +4,9 @@ import com.attilapalfi.commons.TcpSignalProcessor
 import com.attilapalfi.commons.messages.*
 import com.attilapalfi.commons.utlis.ClientMessageConverter
 import com.attilapalfi.exception.ConnectionException
-import com.attilapalfi.logic.GameState
-import com.attilapalfi.logic.Player
-import com.attilapalfi.logic.World
+import com.attilapalfi.core.GameState
+import com.attilapalfi.game.entities.Player
+import com.attilapalfi.core.World
 import org.apache.commons.lang3.SerializationException
 import java.net.InetAddress
 

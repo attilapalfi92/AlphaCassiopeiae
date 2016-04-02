@@ -3,7 +3,7 @@ package com.attilapalfi.screens
 import com.attilapalfi.CURRENT_WINDOW_HEIGHT
 import com.attilapalfi.CURRENT_WINDOW_WIDTH
 import com.attilapalfi.commons.DEFAULT_MAX_USERS
-import com.attilapalfi.logic.GameManager
+import com.attilapalfi.core.GameManager
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input

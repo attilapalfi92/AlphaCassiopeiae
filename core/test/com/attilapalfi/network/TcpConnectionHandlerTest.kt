@@ -4,7 +4,7 @@ import com.attilapalfi.commons.UdpMessageBroadcaster
 import com.attilapalfi.commons.messages.*
 import com.attilapalfi.commons.utlis.ClientMessageConverter
 import com.attilapalfi.commons.utlis.ServerMessageConverter
-import com.attilapalfi.logic.World
+import com.attilapalfi.core.World
 import org.junit.Assert
 import org.junit.Test
 import org.mockito.Mockito
@@ -17,7 +17,7 @@ import java.net.Socket
  */
 class TcpConnectionHandlerTest {
 
-    val world: World = World(camera)
+    val world: World = World()
     val udpMessageBroadcaster: UdpMessageBroadcaster = Mockito.mock(UdpMessageBroadcaster::class.java)
     val gameEventHandler: GameEventHandler = Mockito.mock(GameEventHandler::class.java)
     val connectionEventHandler: TcpConnectionEventHandler = Mockito.mock(TcpConnectionEventHandler::class.java)

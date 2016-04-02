@@ -1,4 +1,4 @@
-package com.attilapalfi.logic
+package com.attilapalfi.core
 
 /**
  * Created by palfi on 2016-01-11.

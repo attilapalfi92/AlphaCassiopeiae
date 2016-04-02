@@ -10,7 +10,7 @@ import com.attilapalfi.commons.messages.START_ACK
 import com.attilapalfi.commons.messages.TcpServerMessage
 import com.attilapalfi.commons.utlis.ServerMessageConverter
 import com.attilapalfi.exception.ConnectionException
-import com.attilapalfi.logic.World
+import com.attilapalfi.core.World
 import com.attilapalfi.logger.logInfo
 import java.net.InetAddress
 import java.net.ServerSocket

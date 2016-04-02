@@ -1,29 +1,30 @@
-package com.attilapalfi.logic
+package com.attilapalfi.core
 
+import com.attilapalfi.WORLD_HEIGHT
+import com.attilapalfi.WORLD_WIDTH
+import com.attilapalfi.game.CameraViewport
 import com.attilapalfi.game.GameMap
 import com.attilapalfi.game.WorldRenderer
 import com.attilapalfi.network.Client
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.locks.ReentrantLock
-import java.util.stream.Stream
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class World(private val lock: ReentrantLock) {
+class World() {
 
     @Volatile
     var gameState: GameState = GameState.WAITING_FOR_PLAYER
-
-    val renderer: WorldRenderer = WorldRenderer(this, lock)
 
     @Volatile
     private var threadIsRunning = true
     private var lastStepTime: Long = 0L
 
     private val players: ConcurrentHashMap<InetAddress, Client> = ConcurrentHashMap(11);
-    private val map = GameMap(lock)
+    private val map = GameMap(players)
+
+    val renderer: WorldRenderer = WorldRenderer(map)
 
     fun setPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
         players[address]?.let {
@@ -66,21 +67,14 @@ class World(private val lock: ReentrantLock) {
 
     private fun step() {
         if (lastStepTime != 0L) {
-            lock.lock()
             val deltaTime = System.currentTimeMillis() - lastStepTime
-
-            for(player in players) {
-                player.value.player.step(renderer.camera.position.x, deltaTime)
-            }
-
-            map.step(players, renderer.camera.position.x, deltaTime)
-            lock.unlock()
+            val viewport = CameraViewport(renderer.camera.position.x + (WORLD_WIDTH / 2),
+                    renderer.camera.position.y + (WORLD_HEIGHT / 2),
+                    renderer.camera.position.x - (WORLD_WIDTH / 2),
+                    renderer.camera.position.y - (WORLD_HEIGHT / 2))
+            map.step(viewport, deltaTime)
         }
         lastStepTime = System.currentTimeMillis()
-    }
-
-    fun render() {
-
     }
 
     fun playerCount(): Int = players.size

@@ -1,4 +1,4 @@
-package com.attilapalfi.logic
+package com.attilapalfi.core
 
 import com.attilapalfi.WORLD_HEIGHT
 import com.attilapalfi.WORLD_WIDTH
@@ -56,11 +56,10 @@ class GameManager(private val maxTcpClients: Int) : TcpConnectionEventHandler, G
 
     @Synchronized
     override fun onGameStartReceived() {
-        val lock = ReentrantLock(true)
         camera = OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT).apply {
             position.set(WORLD_WIDTH / 6, WORLD_HEIGHT / 2, 0f)
         }
-        world = World(lock)
+        world = World()
         worldRenderer = world.renderer
 
         if (world.gameState == GameState.WAITING_FOR_START) {
