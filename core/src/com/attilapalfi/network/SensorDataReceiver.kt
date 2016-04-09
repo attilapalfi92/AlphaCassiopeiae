@@ -52,10 +52,6 @@ class SensorDataReceiver(private var packetProcessor: UdpPacketProcessor) : UdpP
         }
     }
 
-    //    override fun setUdpPacketProcessor(packetProcessor: UdpPacketProcessor) {
-    //        this.packetProcessor = packetProcessor
-    //    }
-
     override fun stopReceiving() {
         socket.close()
     }

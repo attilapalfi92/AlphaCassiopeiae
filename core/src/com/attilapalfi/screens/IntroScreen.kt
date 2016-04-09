@@ -6,11 +6,9 @@ import com.attilapalfi.commons.DEFAULT_MAX_USERS
 import com.attilapalfi.core.GameManager
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 
@@ -22,29 +20,29 @@ class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
     private val communicationManager = GameManager(DEFAULT_MAX_USERS)
             .apply { startUdpCommunication() }
 
-    private val sprite = SpriteBatch()
-    private val tomCruize = Texture("tom.jpg")
+    private lateinit var sprite: SpriteBatch
+    private lateinit var tomCruize: Texture
     private var time: Float = 0f
+
+    override fun show() {
+        sprite = SpriteBatch()
+        tomCruize = Texture("tom.jpg")
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+    }
 
     override fun render(delta: Float) {
         time += delta
-
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         drawTomCruize()
+        if (time > 1) {
+            game.screen = LobbyScreen(game, communicationManager)
+        }
     }
 
     private fun drawTomCruize() {
         sprite.begin()
         sprite.transformMatrix = transformMatrix()
         sprite.draw(tomCruize, 0f, 0f)
-
-        if (time > 3) {
-            if (Gdx.input.isKeyPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()) {
-                game.screen = LobbyScreen(game, communicationManager)
-            }
-        }
-
         sprite.end()
     }
 
@@ -63,6 +61,8 @@ class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
     override fun resume() {
     }
 
-    override fun dispose() {
+    override fun hide() {
+        sprite.dispose()
+        tomCruize.dispose()
     }
 }

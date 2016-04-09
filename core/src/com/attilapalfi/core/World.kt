@@ -1,7 +1,7 @@
 package com.attilapalfi.core
 
-import com.attilapalfi.WORLD_HEIGHT
-import com.attilapalfi.WORLD_WIDTH
+import com.attilapalfi.CAMERA_HEIGHT
+import com.attilapalfi.CAMERA_WIDTH
 import com.attilapalfi.game.CameraViewport
 import com.attilapalfi.game.GameMap
 import com.attilapalfi.game.WorldRenderer
@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap
 class World() {
 
     @Volatile
-    var gameState: GameState = GameState.WAITING_FOR_PLAYER
+    public var gameState: GameState = GameState.WAITING_FOR_PLAYER
+        private set
 
     @Volatile
     private var threadIsRunning = true
@@ -34,11 +35,16 @@ class World() {
     }
 
     fun addPlayer(address: InetAddress, client: Client) {
+        if (gameState == GameState.WAITING_FOR_PLAYER) {
+            gameState = GameState.WAITING_FOR_START
+        }
         players.put(address, client)
     }
 
-    fun init() {
-
+    fun startReceived() {
+        if (gameState == GameState.WAITING_FOR_START) {
+            gameState = GameState.RUNNING
+        }
     }
 
     fun start() {
@@ -52,6 +58,7 @@ class World() {
                         Thread.sleep(100)
                     }
                     GameState.RUNNING -> {
+                        Thread.sleep(10)
                         step()
                     }
                     GameState.PAUSED -> {
@@ -68,10 +75,10 @@ class World() {
     private fun step() {
         if (lastStepTime != 0L) {
             val deltaTime = System.currentTimeMillis() - lastStepTime
-            val viewport = CameraViewport(renderer.camera.position.x + (WORLD_WIDTH / 2),
-                    renderer.camera.position.y + (WORLD_HEIGHT / 2),
-                    renderer.camera.position.x - (WORLD_WIDTH / 2),
-                    renderer.camera.position.y - (WORLD_HEIGHT / 2))
+            val viewport = CameraViewport(renderer.camera.position.x - (CAMERA_WIDTH / 2),
+                    renderer.camera.position.y + (CAMERA_HEIGHT / 2),
+                    renderer.camera.position.x + (CAMERA_WIDTH / 2),
+                    renderer.camera.position.y - (CAMERA_HEIGHT / 2))
             map.step(viewport, deltaTime)
         }
         lastStepTime = System.currentTimeMillis()

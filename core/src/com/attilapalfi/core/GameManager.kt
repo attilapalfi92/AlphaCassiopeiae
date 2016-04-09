@@ -1,21 +1,17 @@
 package com.attilapalfi.core
 
-import com.attilapalfi.WORLD_HEIGHT
-import com.attilapalfi.WORLD_WIDTH
 import com.attilapalfi.commons.UDP_PORT
 import com.attilapalfi.commons.UdpPacketReceiver
 import com.attilapalfi.commons.exceptions.NetworkException
 import com.attilapalfi.game.WorldRenderer
 import com.attilapalfi.logger.logError
 import com.attilapalfi.network.*
-import com.badlogic.gdx.graphics.OrthographicCamera
 import java.net.InetAddress
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Created by 212461305 on 2016.02.10..
@@ -32,7 +28,6 @@ class GameManager(private val maxTcpClients: Int) : TcpConnectionEventHandler, G
 
     private val tcpSendingExecutor: ExecutorService = Executors.newFixedThreadPool(maxTcpClients)
 
-    lateinit var camera: OrthographicCamera
     lateinit var world: World
     lateinit var worldRenderer: WorldRenderer
 
@@ -41,7 +36,6 @@ class GameManager(private val maxTcpClients: Int) : TcpConnectionEventHandler, G
 
     fun startActualNewGame() {
         world.start()
-        camera.update()
     }
 
     fun startUdpCommunication() {
@@ -55,17 +49,14 @@ class GameManager(private val maxTcpClients: Int) : TcpConnectionEventHandler, G
     }
 
     @Synchronized
-    override fun onGameStartReceived() {
-        camera = OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT).apply {
-            position.set(WORLD_WIDTH / 6, WORLD_HEIGHT / 2, 0f)
-        }
+    fun initNewGame() {
         world = World()
         worldRenderer = world.renderer
+    }
 
-        if (world.gameState == GameState.WAITING_FOR_START) {
-            world.gameState = GameState.RUNNING
-            world.init()
-        }
+    @Synchronized
+    override fun onGameStartReceived() {
+        world.startReceived()
         sendStartAcksToClients()
     }
 
