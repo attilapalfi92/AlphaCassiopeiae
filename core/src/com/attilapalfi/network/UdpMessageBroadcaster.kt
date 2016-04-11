@@ -5,8 +5,8 @@ package com.attilapalfi.network
  */
 interface UdpMessageBroadcaster {
     fun startBroadcasting()
-    fun clientConnected(clientPort: Int)
-    fun clientDisconnected(clientPort: Int)
-    fun addNewAvailablePort(clientPort: Int)
+    fun clientConnected(serverPort: Int)
+    fun clientDisconnected(serverPort: Int)
+    fun addNewAvailablePort(serverPort: Int)
     fun clientsCleared()
 }

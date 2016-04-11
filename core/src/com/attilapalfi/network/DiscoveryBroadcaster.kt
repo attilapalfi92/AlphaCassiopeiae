@@ -58,15 +58,15 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     }
 
     @Synchronized
-    override fun clientConnected(clientPort: Int) {
+    override fun clientConnected(serverPort: Int) {
         if (connectedClients < maxPlayers) {
             connectedClients++
         }
-        availableTcpPorts.remove(clientPort)
+        availableTcpPorts.remove(serverPort)
     }
 
     @Synchronized
-    override fun clientDisconnected(clientPort: Int) {
+    override fun clientDisconnected(serverPort: Int) {
         if (connectedClients > 0) {
             connectedClients--;
         }
@@ -77,8 +77,8 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
         connectedClients = 0
     }
 
-    override fun addNewAvailablePort(clientPort: Int) {
-        availableTcpPorts.add(clientPort)
+    override fun addNewAvailablePort(serverPort: Int) {
+        availableTcpPorts.add(serverPort)
     }
 
     private fun filterBroadcastAddresses(interfaceAddresses: List<InterfaceAddress>): List<InetAddress> {
