@@ -2,10 +2,11 @@ package com.attilapalfi.core
 
 import com.attilapalfi.CAMERA_HEIGHT
 import com.attilapalfi.CAMERA_WIDTH
+import com.attilapalfi.controller.Controller
 import com.attilapalfi.game.CameraViewport
 import com.attilapalfi.game.GameMap
 import com.attilapalfi.game.WorldRenderer
-import com.attilapalfi.network.Client
+import com.attilapalfi.game.entities.Player
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
 
@@ -22,23 +23,23 @@ class World() {
     private var threadIsRunning = true
     private var lastStepTime: Long = 0L
 
-    private val players: ConcurrentHashMap<InetAddress, Client> = ConcurrentHashMap(11);
+    private val players: ConcurrentHashMap<InetAddress, Player> = ConcurrentHashMap(11);
     private val map = GameMap(players)
 
     val renderer: WorldRenderer = WorldRenderer(map)
 
     fun setPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
         players[address]?.let {
-            it.player.speedX = speedX
-            it.player.speedY = speedY
+            it.speedX = speedX
+            it.speedY = speedY
         }
     }
 
-    fun addPlayer(address: InetAddress, client: Client) {
+    fun addPlayer(controller: Controller) {
         if (gameState == GameState.WAITING_FOR_PLAYER) {
             gameState = GameState.WAITING_FOR_START
         }
-        players.put(address, client)
+        players.put(controller.address(), Player())
     }
 
     fun startReceived() {

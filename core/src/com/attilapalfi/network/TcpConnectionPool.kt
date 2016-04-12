@@ -1,21 +1,18 @@
 package com.attilapalfi.network
 
 import com.attilapalfi.commons.UDP_PORT
-import com.attilapalfi.controller.Controller
+import com.attilapalfi.controller.ControllerConnectionListener
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * Created by palfi on 2016-04-10.
  */
-class ControllerPool(private val maxTcpClients: Int) : TcpConnectionEventListener {
+class TcpConnectionPool(private val controllerConnectionListener: ControllerConnectionListener) :
+        TcpConnectionEventListener {
 
-    private val controllers: ConcurrentHashMap<Controller, Int> = ConcurrentHashMap()
+    private val maxTcpClients: Int = 4
     private val tcpConnections: ConcurrentHashMap<TcpConnection2, Int> = initTcpConnections()
-
-    private val tcpSendingExecutor: ExecutorService = Executors.newFixedThreadPool(maxTcpClients)
 
     private var discoveryBroadcaster: UdpMessageBroadcaster = DiscoveryBroadcaster(
             Collections.synchronizedList(tcpConnections.map { it.key.serverPort }),
@@ -24,13 +21,17 @@ class ControllerPool(private val maxTcpClients: Int) : TcpConnectionEventListene
     private fun initTcpConnections(): ConcurrentHashMap<TcpConnection2, Int> {
         return ConcurrentHashMap<TcpConnection2, Int>().apply {
             for (i in 1..maxTcpClients) {
-                put(TcpConnection2(this@ControllerPool).apply { start() }, 1)
+                put(TcpConnection2(this@TcpConnectionPool).apply { start() }, 1)
             }
         }
     }
 
+    init {
+        discoveryBroadcaster.startBroadcasting()
+    }
+
     override fun onConnect(tcpConnection2: TcpConnection2) {
-        controllers.put(tcpConnection2.controller, 1)
+        controllerConnectionListener.controllerConnected(tcpConnection2.controller)
         discoveryBroadcaster.clientConnected(tcpConnection2.serverPort)
     }
 

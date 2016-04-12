@@ -17,11 +17,18 @@ import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * Created by palfi on 2016-04-10.
  */
-class TcpConnection2(private val tcpConnectionEventListener: TcpConnectionEventListener) : ControlEventSender {
+class TcpConnection2(private val tcpConnectionEventListener: TcpConnectionEventListener) :
+        ControlEventSender {
+
+    companion object {
+        private val tcpSendingExecutor: ExecutorService = Executors.newFixedThreadPool(4)
+    }
 
     val serverPort: Int
     private val serverSocket: ServerSocket = ServerSocket()
@@ -48,6 +55,16 @@ class TcpConnection2(private val tcpConnectionEventListener: TcpConnectionEventL
     init {
         serverSocket.bind(null)
         serverPort = serverSocket.localPort
+    }
+
+    @Synchronized
+    override fun vibrate(milliseconds: Long) {
+        // TODO: change to vibration
+        tcpSendingExecutor.submit {
+            val message = ServerMessageConverter
+                    .tcpMessageToByteArray(TcpServerMessage(START_ACK)) + MESSAGE_END
+            connection?.outputStream?.use { it.write(message) }
+        }
     }
 
     @Synchronized
@@ -97,13 +114,15 @@ class TcpConnection2(private val tcpConnectionEventListener: TcpConnectionEventL
 
     @Synchronized
     fun sendRegAck() {
-        val message = ServerMessageConverter.tcpMessageToByteArray(TcpServerMessage(REG_ACK)) + MESSAGE_END
+        val message = ServerMessageConverter
+                .tcpMessageToByteArray(TcpServerMessage(REG_ACK)) + MESSAGE_END
         connection?.outputStream?.use { it.write(message) }
     }
 
     @Synchronized
     fun sendStartAck() {
-        val message = ServerMessageConverter.tcpMessageToByteArray(TcpServerMessage(START_ACK)) + MESSAGE_END
+        val message = ServerMessageConverter
+                .tcpMessageToByteArray(TcpServerMessage(START_ACK)) + MESSAGE_END
         connection?.outputStream?.use { it.write(message) }
     }
 

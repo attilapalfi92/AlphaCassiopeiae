@@ -24,4 +24,12 @@ class AndroidController(private val controlEventSender: ControlEventSender) : Co
     override fun vibrate(milliseconds: Long) {
         controlEventSender.vibrate(milliseconds)
     }
+
+    override fun address(): String {
+        throw UnsupportedOperationException()
+    }
+
+    override fun name(): String {
+        throw UnsupportedOperationException()
+    }
 }

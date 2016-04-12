@@ -2,7 +2,6 @@ package com.attilapalfi.screens
 
 import com.attilapalfi.CURRENT_WINDOW_HEIGHT
 import com.attilapalfi.CURRENT_WINDOW_WIDTH
-import com.attilapalfi.commons.DEFAULT_MAX_USERS
 import com.attilapalfi.core.GameManager
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
@@ -17,8 +16,7 @@ import com.badlogic.gdx.math.Vector3
  */
 class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
 
-    private val communicationManager = GameManager(DEFAULT_MAX_USERS)
-            .apply { startUdpCommunication() }
+    private val gameManager = GameManager()
 
     private lateinit var sprite: SpriteBatch
     private lateinit var tomCruize: Texture
@@ -35,7 +33,7 @@ class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         drawTomCruize()
         if (time > 1) {
-            game.screen = LobbyScreen(game, communicationManager)
+            game.screen = LobbyScreen(game, gameManager)
         }
     }
 
