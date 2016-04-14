@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.GL20
 class LobbyScreen(game: Game, private val gameManager: GameManager) : CassiopeiaeScreen(game) {
 
     init {
-        gameManager.initNewGame()
+        gameManager.startNewGame()
     }
 
     override fun show() {

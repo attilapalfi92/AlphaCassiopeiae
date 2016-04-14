@@ -1,35 +1,32 @@
 package com.attilapalfi.controller
 
+import java.net.InetAddress
+
 /**
  * Created by palfi on 2016-04-10.
  */
-class AndroidController(private val controlEventSender: ControlEventSender) : Controller {
+class AndroidController(private val controllerEventHandler: ControllerEventHandler,
+                        private val controllerNotifier: ControllerNotifier,
+                        override var name: String? = null,
+                        override var address: InetAddress? = null) : Controller {
 
     override fun aPressed() {
-        throw UnsupportedOperationException()
+        controllerEventHandler.onApressed(this)
     }
 
     override fun bPressed() {
-        throw UnsupportedOperationException()
+        controllerEventHandler.onBpressed(this)
     }
 
     override fun xPressed() {
-        throw UnsupportedOperationException()
+        controllerEventHandler.onXpressed(this)
     }
 
     override fun yPressed() {
-        throw UnsupportedOperationException()
+        controllerEventHandler.onYpressed(this)
     }
 
     override fun vibrate(milliseconds: Long) {
-        controlEventSender.vibrate(milliseconds)
-    }
-
-    override fun address(): String {
-        throw UnsupportedOperationException()
-    }
-
-    override fun name(): String {
-        throw UnsupportedOperationException()
+        controllerNotifier.vibrate(milliseconds)
     }
 }

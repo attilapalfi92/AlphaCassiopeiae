@@ -10,16 +10,23 @@ import com.badlogic.gdx.math.Vector3
 /**
  * Created by 212461305 on 2016.03.16..
  */
-class WorldRenderer(private val map: GameMap) {
+class WorldRenderer(private var map: GameMap) {
+
+    private val initialCamPosition = Vector3(CAMERA_WIDTH / 6, CAMERA_HEIGHT / 2, 0f)
 
     val camera: OrthographicCamera = OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT).apply {
-        position.set(CAMERA_WIDTH / 6, CAMERA_HEIGHT / 2, 0f)
+        position.set(initialCamPosition)
     }
 
     private val cameraSpeed: Float = 0.2f
 
     init {
         camera.update()
+    }
+
+    fun startNewGame(map: GameMap) {
+        this.map = map
+        camera.position.set(initialCamPosition)
     }
 
     fun render(deltaT: Float) {

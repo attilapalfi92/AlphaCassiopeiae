@@ -9,8 +9,9 @@ import com.attilapalfi.commons.messages.START_ACK
 import com.attilapalfi.commons.messages.TcpServerMessage
 import com.attilapalfi.commons.utlis.ServerMessageConverter
 import com.attilapalfi.controller.AndroidController
-import com.attilapalfi.controller.ControlEventSender
 import com.attilapalfi.controller.Controller
+import com.attilapalfi.controller.ControllerEventHandler
+import com.attilapalfi.controller.ControllerNotifier
 import com.attilapalfi.exception.ConnectionException
 import com.attilapalfi.logger.logInfo
 import java.net.InetAddress
@@ -23,8 +24,9 @@ import java.util.concurrent.Executors
 /**
  * Created by palfi on 2016-04-10.
  */
-class TcpConnection2(private val tcpConnectionEventListener: TcpConnectionEventListener) :
-        ControlEventSender {
+class TcpConnection2(private val controllerEventHandler: ControllerEventHandler,
+                     private val tcpConnectionEventListener: TcpConnectionEventListener) :
+        ControllerNotifier {
 
     companion object {
         private val tcpSendingExecutor: ExecutorService = Executors.newFixedThreadPool(4)
@@ -46,11 +48,12 @@ class TcpConnection2(private val tcpConnectionEventListener: TcpConnectionEventL
     var started: Boolean = false
         private set
 
-    var controller: Controller = AndroidController(this)
+    val controller: Controller = AndroidController(controllerEventHandler, this)
 
-    private val tcpMessageBuffer: TcpMessageBuffer =
-            IntelligentTcpMessageBuffer(
-                    ServerTcpSignalProcessor2(controller))
+    private val tcpMessageBuffer: TcpMessageBuffer by lazy {
+        IntelligentTcpMessageBuffer(ServerTcpSignalProcessor2(controller))
+    }
+
 
     init {
         serverSocket.bind(null)
@@ -96,6 +99,7 @@ class TcpConnection2(private val tcpConnectionEventListener: TcpConnectionEventL
         connection?.keepAlive = true
         clientIp = connection?.inetAddress
         clientPort = connection?.port
+        controller.address = clientIp
         tcpConnectionEventListener.onConnect(this)
     }
 

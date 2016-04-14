@@ -19,6 +19,7 @@ class ServerTcpSignalProcessor2(private val controller: Controller) : TcpSignalP
             val clientMessage = ClientMessageConverter.byteArrayToTcpClientMessage(messageBytes)
             when (clientMessage.messageType) {
                 REGISTRATION -> {
+                    controller.name = clientMessage.deviceName
                     controller.aPressed()
                 }
                 START -> {

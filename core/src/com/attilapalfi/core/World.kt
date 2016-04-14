@@ -3,20 +3,22 @@ package com.attilapalfi.core
 import com.attilapalfi.CAMERA_HEIGHT
 import com.attilapalfi.CAMERA_WIDTH
 import com.attilapalfi.controller.Controller
+import com.attilapalfi.controller.ControllerEventHandler
 import com.attilapalfi.game.CameraViewport
 import com.attilapalfi.game.GameMap
 import com.attilapalfi.game.WorldRenderer
 import com.attilapalfi.game.entities.Player
+import com.attilapalfi.network.SensorDataListener
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class World() {
+class World : ControllerEventHandler, SensorDataListener {
 
     @Volatile
-    public var gameState: GameState = GameState.WAITING_FOR_PLAYER
+    var gameState: GameState = GameState.WAITING_FOR_PLAYER
         private set
 
     @Volatile
@@ -24,11 +26,16 @@ class World() {
     private var lastStepTime: Long = 0L
 
     private val players: ConcurrentHashMap<InetAddress, Player> = ConcurrentHashMap(11);
-    private val map = GameMap(players)
+    private var map = GameMap(players)
 
     val renderer: WorldRenderer = WorldRenderer(map)
 
-    fun setPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
+    fun startNewGame() {
+        map = GameMap(players)
+        renderer.startNewGame(map)
+    }
+
+    override fun onSetPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
         players[address]?.let {
             it.speedX = speedX
             it.speedY = speedY
@@ -39,7 +46,25 @@ class World() {
         if (gameState == GameState.WAITING_FOR_PLAYER) {
             gameState = GameState.WAITING_FOR_START
         }
-        players.put(controller.address(), Player())
+        controller.address?.let {
+            players.put(it, Player())
+        }
+    }
+
+    override fun onApressed(controller: Controller) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun onBpressed(controller: Controller) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun onXpressed(controller: Controller) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun onYpressed(controller: Controller) {
+        throw UnsupportedOperationException()
     }
 
     fun startReceived() {

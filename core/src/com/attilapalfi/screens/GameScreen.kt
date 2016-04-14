@@ -13,10 +13,6 @@ class GameScreen(game: Game, private val gameManager: GameManager) : Cassiopeiae
 
     private val renderer: WorldRenderer = gameManager.worldRenderer
 
-    init {
-        gameManager.startActualNewGame()
-    }
-
     override fun show() {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1f)
     }

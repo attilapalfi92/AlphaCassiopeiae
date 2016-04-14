@@ -2,18 +2,20 @@ package com.attilapalfi.network
 
 import com.attilapalfi.commons.UdpPacketReceiver
 import com.attilapalfi.controller.ControllerConnectionListener
+import com.attilapalfi.controller.ControllerEventHandler
 
 /**
  * Created by palfi on 2016-04-12.
  */
-class NetworkManager(controllerConnectionListener: ControllerConnectionListener,
-                     sensorDataDistributor: SensorDataDistributor) {
+class NetworkManager(controllerEventHandler: ControllerEventHandler,
+                     controllerConnectionListener: ControllerConnectionListener,
+                     sensorDataListener: SensorDataListener) {
 
     private val sensorDataReceiver: UdpPacketReceiver
-            = SensorDataReceiver(SensorDataProcessor(sensorDataDistributor))
+            = SensorDataReceiver(SensorDataProcessor(sensorDataListener))
 
     private val tcpConnectionPool: TcpConnectionPool
-            = TcpConnectionPool(controllerConnectionListener)
+            = TcpConnectionPool(controllerEventHandler, controllerConnectionListener)
 
     init {
         sensorDataReceiver.startReceiving()

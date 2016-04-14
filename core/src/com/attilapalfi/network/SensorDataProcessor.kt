@@ -14,14 +14,14 @@ import java.net.InetAddress
 /**
  * Created by palfi on 2016-01-11.
  */
-class SensorDataProcessor(private val dataDistributor: SensorDataDistributor) : UdpPacketProcessor {
+class SensorDataProcessor(private val dataListener: SensorDataListener) : UdpPacketProcessor {
 
     override fun process(packet: DatagramPacket) {
         try {
             val sensorData = ServerMessageConverter.byteArrayToSensorData(packet.data)
             when (sensorData.type) {
                 SENSOR_DATA -> {
-                    dataDistributor.onSetPlayerSpeed(packet.address, sensorData.x, sensorData.y)
+                    dataListener.onSetPlayerSpeed(packet.address, sensorData.x, sensorData.y)
                 }
             }
         } catch (e: SerializationException) {
