@@ -10,8 +10,9 @@ import com.badlogic.gdx.math.Vector3
 /**
  * Created by 212461305 on 2016.03.16..
  */
-class WorldRenderer(private var map: GameMap) {
+class WorldRenderer {
 
+    private var map: GameMap? = null
     private val initialCamPosition = Vector3(CAMERA_WIDTH / 6, CAMERA_HEIGHT / 2, 0f)
 
     val camera: OrthographicCamera = OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT).apply {
@@ -32,7 +33,7 @@ class WorldRenderer(private var map: GameMap) {
     fun render(deltaT: Float) {
         adjustCameraPos(deltaT)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        map.render(camera.combined)
+        map?.render(camera.combined)
     }
 
     fun adjustCameraPos(deltaT: Float) {

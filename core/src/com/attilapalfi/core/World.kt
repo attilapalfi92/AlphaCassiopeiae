@@ -26,14 +26,17 @@ class World : ControllerEventHandler, SensorDataListener {
     private var lastStepTime: Long = 0L
 
     private val players: ConcurrentHashMap<InetAddress, Player> = ConcurrentHashMap(11);
-    private var map = GameMap(players)
 
-    val renderer: WorldRenderer = WorldRenderer(map)
+    private var map: GameMap? = null
+    val renderer: WorldRenderer = WorldRenderer()
 
     fun startNewGame() {
-        map = GameMap(players)
-        renderer.startNewGame(map)
+        map = GameMap(players).apply {
+            renderer.startNewGame(this)
+        }
     }
+
+    fun getPlayers() = players.map { it.value }
 
     override fun onSetPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
         players[address]?.let {
@@ -47,7 +50,7 @@ class World : ControllerEventHandler, SensorDataListener {
             gameState = GameState.WAITING_FOR_START
         }
         controller.address?.let {
-            players.put(it, Player())
+            players.put(it, Player(controller.name ?: "UNKNOWN", 0))
         }
     }
 
@@ -105,7 +108,7 @@ class World : ControllerEventHandler, SensorDataListener {
                     renderer.camera.position.y + (CAMERA_HEIGHT / 2),
                     renderer.camera.position.x + (CAMERA_WIDTH / 2),
                     renderer.camera.position.y - (CAMERA_HEIGHT / 2))
-            map.step(viewport, deltaTime)
+            map?.step(viewport, deltaTime)
         }
         lastStepTime = System.currentTimeMillis()
     }

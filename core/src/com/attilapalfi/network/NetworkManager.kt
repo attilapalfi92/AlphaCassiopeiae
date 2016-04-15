@@ -17,7 +17,8 @@ class NetworkManager(controllerEventHandler: ControllerEventHandler,
     private val tcpConnectionPool: TcpConnectionPool
             = TcpConnectionPool(controllerEventHandler, controllerConnectionListener)
 
-    init {
+    fun startNetworking() {
         sensorDataReceiver.startReceiving()
+        tcpConnectionPool.startBroadcasting()
     }
 }

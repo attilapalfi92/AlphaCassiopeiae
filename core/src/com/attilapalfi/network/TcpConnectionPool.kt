@@ -29,7 +29,7 @@ class TcpConnectionPool(private val controllerEventHandler: ControllerEventHandl
         }
     }
 
-    init {
+    fun startBroadcasting() {
         discoveryBroadcaster.startBroadcasting()
     }
 
