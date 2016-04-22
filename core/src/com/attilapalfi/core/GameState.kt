@@ -8,5 +8,6 @@ enum class GameState {
     WAITING_FOR_START,
     RUNNING,
     PAUSED,
-    OVER
+    OVER,
+    EXITED
 }

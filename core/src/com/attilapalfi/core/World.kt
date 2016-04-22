@@ -54,25 +54,79 @@ class World : ControllerEventHandler, SensorDataListener {
         }
     }
 
+    fun removePlayer(controller: Controller) {
+        players.remove(controller.address)
+        if (players.isEmpty()) {
+            when (gameState) {
+                GameState.WAITING_FOR_START -> {
+                    gameState = GameState.WAITING_FOR_PLAYER
+                }
+                GameState.RUNNING -> {
+                    gameState = GameState.PAUSED
+                }
+                else -> {
+                }
+            }
+        }
+    }
+
     override fun onApressed(controller: Controller) {
+        when (gameState) {
+            GameState.WAITING_FOR_START -> {
+                gameState = GameState.EXITED
+            }
+            GameState.RUNNING -> {
+                // TODO: DROP BOMB
+            }
+            GameState.PAUSED -> {
+                gameState = GameState.EXITED
+            }
+            GameState.OVER -> {
+                gameState = GameState.EXITED
+            }
+            else -> {
+            }
+        }
         throw UnsupportedOperationException()
     }
 
     override fun onBpressed(controller: Controller) {
-        throw UnsupportedOperationException()
+        when (gameState) {
+            GameState.WAITING_FOR_START -> {
+                gameState = GameState.RUNNING
+            }
+            GameState.RUNNING -> {
+                gameState = GameState.PAUSED
+            }
+            GameState.PAUSED -> {
+                gameState = GameState.RUNNING
+            }
+            GameState.OVER -> {
+                startNewGame()
+                gameState = GameState.RUNNING
+            }
+            else -> {
+            }
+        }
     }
 
     override fun onXpressed(controller: Controller) {
-        throw UnsupportedOperationException()
+        when (gameState) {
+            GameState.RUNNING -> {
+                // TODO: FIRE WITH WEAPON 1
+            }
+            else -> {
+            }
+        }
     }
 
     override fun onYpressed(controller: Controller) {
-        throw UnsupportedOperationException()
-    }
-
-    fun startReceived() {
-        if (gameState == GameState.WAITING_FOR_START) {
-            gameState = GameState.RUNNING
+        when (gameState) {
+            GameState.RUNNING -> {
+                // TODO: FIRE WITH WEAPON 1
+            }
+            else -> {
+            }
         }
     }
 
@@ -95,6 +149,9 @@ class World : ControllerEventHandler, SensorDataListener {
                     }
                     GameState.OVER -> {
                         threadIsRunning = false
+                    }
+                    GameState.EXITED -> {
+                        System.exit(0)
                     }
                 }
             }

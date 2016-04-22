@@ -36,7 +36,6 @@ class GameManager : ControllerConnectionListener {
 
     override fun controllerDisconnected(controller: Controller) {
         controllers.remove(controller)
+        world.removePlayer(controller)
     }
-
-
 }

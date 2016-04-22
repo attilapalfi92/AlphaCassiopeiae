@@ -14,7 +14,7 @@ class Attila(@Volatile var posX: Float,
              @Volatile var posy: Float) : HashedEntity(), Renderable, Steppable {
 
     private val sprite = SpriteBatch()
-    private val attila = Texture("Attila.jpg")
+    private val attila = Texture("images/Attila.jpg")
 
     override fun render(projAndViewMatrix: Matrix4) {
         sprite.projectionMatrix = projAndViewMatrix

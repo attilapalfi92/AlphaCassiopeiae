@@ -12,12 +12,13 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
         UdpMessageBroadcaster {
 
     private val socket: DatagramSocket by lazy { DatagramSocket().apply { broadcast = true } }
-    private val broadcastAddresses: List<InetAddress> = filterBroadcastAddresses(collectValidNetworkInterfaceAddresses())
+    private val broadcastAddresses: List<InetAddress>
+            = filterBroadcastAddresses(collectValidNetworkInterfaceAddresses())
 
     @Volatile
-    private var connectedClients = 0;
+    private var connectedClients = 0
     @Volatile
-    private var started = false;
+    private var started = false
 
     init {
         if (maxPlayers < 1) {
@@ -53,6 +54,9 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     private fun sleep() {
         when (connectedClients) {
             0 -> Thread.sleep(100)
+            1 -> Thread.sleep(300)
+            2 -> Thread.sleep(300)
+            3 -> Thread.sleep(300)
             else -> Thread.sleep(1000)
         }
     }

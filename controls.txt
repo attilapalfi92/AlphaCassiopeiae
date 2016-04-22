@@ -1,0 +1,39 @@
+controller layout:
+        b
+    y       x
+        a
+
+Lobby screen:
+    b -> start the game
+    a -> exit game
+    x, y -> ignore
+
+Game screen and game is running:
+    x -> fire with weapon 1
+    y -> fire weapon 2
+    a -> drop bomb
+    b -> pause
+
+Game screen and game is paused:
+    b -> resume
+    a -> exit game
+    x, y -> ignore
+
+When game is over:
+    b -> start new game
+    a -> exit game
+
+When player connects or disconnects:
+    During game it generates a pause.
+
+Later there will be more levels and the game can be saved.
+
+Lobby screen:
+    b -> start new game
+    x -> load game
+    a -> exit game
+
+Load screen:
+    b -> move selection up
+    a -> move selection down
+    x -> choose selection

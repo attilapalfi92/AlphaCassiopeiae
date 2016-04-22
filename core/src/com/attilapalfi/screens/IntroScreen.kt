@@ -24,7 +24,7 @@ class IntroScreen(game: Game) : CassiopeiaeScreen(game) {
 
     override fun show() {
         sprite = SpriteBatch()
-        tomCruize = Texture("tom.jpg")
+        tomCruize = Texture("images/tom.jpg")
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
     }
 
