@@ -2,6 +2,9 @@ package com.attilapalfi.core
 
 import com.attilapalfi.CAMERA_HEIGHT
 import com.attilapalfi.CAMERA_WIDTH
+import com.attilapalfi.commons.messages.PressedButton
+import com.attilapalfi.commons.messages.PressedButton.*
+import com.attilapalfi.commons.messages.UdpSensorData
 import com.attilapalfi.controller.Controller
 import com.attilapalfi.controller.ControllerEventHandler
 import com.attilapalfi.game.CameraViewport
@@ -31,6 +34,9 @@ class World : ControllerEventHandler, SensorDataListener {
     val renderer: WorldRenderer = WorldRenderer()
 
     fun startNewGame() {
+        players.values.forEach {
+            it.controller.startSensorDataStream()
+        }
         map = GameMap(players).apply {
             renderer.startNewGame(this)
         }
@@ -38,10 +44,27 @@ class World : ControllerEventHandler, SensorDataListener {
 
     fun getPlayers() = players.map { it.value }
 
-    override fun onSetPlayerSpeed(address: InetAddress, speedX: Float, speedY: Float) {
+    override fun updatePlayerData(address: InetAddress, playerData: UdpSensorData) {
+        val time = System.currentTimeMillis()
         players[address]?.let {
-            it.speedX = speedX
-            it.speedY = speedY
+            val player = it
+            player.speedX = playerData.x
+            player.speedY = playerData.y
+            playerData.pressedButtons.forEach {
+                when (it) {
+                    A -> {
+                        onApressed(player.controller)
+                    }
+                    X -> {
+                        onXpressed(player.controller)
+                    }
+                    Y -> {
+                        onYpressed(player.controller)
+                    }
+                    else -> {}
+                }
+                player.buttonsToLastPressTimes.put(it, time)
+            }
         }
     }
 
@@ -50,7 +73,7 @@ class World : ControllerEventHandler, SensorDataListener {
             gameState = GameState.WAITING_FOR_START
         }
         controller.address?.let {
-            players.put(it, Player(controller.name ?: "UNKNOWN", 0))
+            players.put(it, Player(controller, 0))
         }
     }
 

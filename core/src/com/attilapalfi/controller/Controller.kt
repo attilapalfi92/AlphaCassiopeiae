@@ -14,5 +14,7 @@ interface Controller {
     fun bPressed()
     fun xPressed()
     fun yPressed()
-    fun vibrate(milliseconds: Long)
+    fun vibrate(milliseconds: Int)
+    fun startSensorDataStream()
+    fun stopSensorDataStream()
 }

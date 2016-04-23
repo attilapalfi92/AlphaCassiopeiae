@@ -1,12 +1,10 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.commons.BUFFER_SIZE
 import com.attilapalfi.commons.IntelligentTcpMessageBuffer
+import com.attilapalfi.commons.TCP_BUFFER_SIZE
 import com.attilapalfi.commons.TcpMessageBuffer
-import com.attilapalfi.commons.messages.MESSAGE_END
-import com.attilapalfi.commons.messages.REG_ACK
-import com.attilapalfi.commons.messages.START_ACK
-import com.attilapalfi.commons.messages.TcpServerMessage
+import com.attilapalfi.commons.messages.ServerTcpMessage
+import com.attilapalfi.commons.messages.ServerTcpMessageType.*
 import com.attilapalfi.commons.utlis.ServerMessageConverter
 import com.attilapalfi.controller.AndroidController
 import com.attilapalfi.controller.Controller
@@ -24,8 +22,8 @@ import java.util.concurrent.Executors
 /**
  * Created by palfi on 2016-04-10.
  */
-class TcpConnection2(private val controllerEventHandler: ControllerEventHandler,
-                     private val tcpConnectionEventListener: TcpConnectionEventListener) :
+class TcpConnection(private val controllerEventHandler: ControllerEventHandler,
+                    private val tcpConnectionEventListener: TcpConnectionEventListener) :
         ControllerNotifier {
 
     companion object {
@@ -51,9 +49,10 @@ class TcpConnection2(private val controllerEventHandler: ControllerEventHandler,
     val controller: Controller = AndroidController(controllerEventHandler, this)
 
     private val tcpMessageBuffer: TcpMessageBuffer by lazy {
-        IntelligentTcpMessageBuffer(ServerTcpSignalProcessor2(controller))
+        IntelligentTcpMessageBuffer(ServerTcpSignalProcessor(controller))
     }
 
+    private val messageConverter = ServerMessageConverter()
 
     init {
         serverSocket.bind(null)
@@ -61,13 +60,23 @@ class TcpConnection2(private val controllerEventHandler: ControllerEventHandler,
     }
 
     @Synchronized
-    override fun vibrate(milliseconds: Long) {
-        // TODO: change to vibration
+    override fun sendVibration(milliseconds: Int) {
         tcpSendingExecutor.submit {
-            val message = ServerMessageConverter
-                    .tcpMessageToByteArray(TcpServerMessage(START_ACK)) + MESSAGE_END
+            val message = messageConverter.messageToByteArray(ServerTcpMessage(VIBRATE, milliseconds))
             connection?.outputStream?.use { it.write(message) }
         }
+    }
+
+    @Synchronized
+    override fun sendStartSensorDataStream() {
+        val message = messageConverter.messageToByteArray(ServerTcpMessage(START_SENSOR_STREAM))
+        connection?.outputStream?.use { it.write(message) }
+    }
+
+    @Synchronized
+    override fun sendStopSensorDataStream() {
+        val message = messageConverter.messageToByteArray(ServerTcpMessage(STOP_SENSOR_STREAM))
+        connection?.outputStream?.use { it.write(message) }
     }
 
     @Synchronized
@@ -86,7 +95,8 @@ class TcpConnection2(private val controllerEventHandler: ControllerEventHandler,
             }
         } catch (se: SocketException) {
             logInfo("TcpServer", "TCP Server is closed, thread run finishes. " +
-                    "Server port: $serverPort, client IP: ${clientIp ?: "null"} client port: ${clientPort ?: "null"}")
+                    "Server port: $serverPort, client IP: ${clientIp ?: "null"} " +
+                    "client port: ${clientPort ?: "null"}")
         } catch (e: ConnectionException) {
             //TODO: ??? connectionEventHandler.onTcpConnectionDeath(this)
         } finally {
@@ -104,7 +114,7 @@ class TcpConnection2(private val controllerEventHandler: ControllerEventHandler,
     }
 
     private fun readFromSocket() {
-        val array = ByteArray(BUFFER_SIZE)
+        val array = ByteArray(TCP_BUFFER_SIZE)
         var readBytes: Int = 0
         connection?.inputStream?.use {
             while (readBytes != -1) {
@@ -114,20 +124,6 @@ class TcpConnection2(private val controllerEventHandler: ControllerEventHandler,
                 }
             }
         }
-    }
-
-    @Synchronized
-    fun sendRegAck() {
-        val message = ServerMessageConverter
-                .tcpMessageToByteArray(TcpServerMessage(REG_ACK)) + MESSAGE_END
-        connection?.outputStream?.use { it.write(message) }
-    }
-
-    @Synchronized
-    fun sendStartAck() {
-        val message = ServerMessageConverter
-                .tcpMessageToByteArray(TcpServerMessage(START_ACK)) + MESSAGE_END
-        connection?.outputStream?.use { it.write(message) }
     }
 
     fun isConnected(): Boolean {

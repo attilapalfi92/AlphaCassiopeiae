@@ -15,16 +15,16 @@ class TcpConnectionPool(private val controllerEventHandler: ControllerEventHandl
         TcpConnectionEventListener {
 
     private val maxTcpClients: Int = 4
-    private val tcpConnections: ConcurrentHashMap<TcpConnection2, Int> = initTcpConnections()
+    private val tcpConnections: ConcurrentHashMap<TcpConnection, Int> = initTcpConnections()
 
     private var discoveryBroadcaster: UdpMessageBroadcaster = DiscoveryBroadcaster(
             Collections.synchronizedList(tcpConnections.map { it.key.serverPort }),
             UDP_PORT, maxTcpClients)
 
-    private fun initTcpConnections(): ConcurrentHashMap<TcpConnection2, Int> {
-        return ConcurrentHashMap<TcpConnection2, Int>().apply {
+    private fun initTcpConnections(): ConcurrentHashMap<TcpConnection, Int> {
+        return ConcurrentHashMap<TcpConnection, Int>().apply {
             for (i in 1..maxTcpClients) {
-                put(TcpConnection2(controllerEventHandler, this@TcpConnectionPool).apply { start() }, 1)
+                put(TcpConnection(controllerEventHandler, this@TcpConnectionPool).apply { start() }, 1)
             }
         }
     }
@@ -33,23 +33,23 @@ class TcpConnectionPool(private val controllerEventHandler: ControllerEventHandl
         discoveryBroadcaster.startBroadcasting()
     }
 
-    override fun onConnect(tcpConnection2: TcpConnection2) {
-        controllerConnectionListener.controllerConnected(tcpConnection2.controller)
-        discoveryBroadcaster.clientConnected(tcpConnection2.serverPort)
+    override fun onConnect(tcpConnection: TcpConnection) {
+        controllerConnectionListener.controllerConnected(tcpConnection.controller)
+        discoveryBroadcaster.clientConnected(tcpConnection.serverPort)
     }
 
-    override fun onDisconnect(tcpConnection2: TcpConnection2) {
-        removeConnection(tcpConnection2)
+    override fun onDisconnect(tcpConnection: TcpConnection) {
+        removeConnection(tcpConnection)
         createNewConnection()
     }
 
-    private fun removeConnection(tcpConnection: TcpConnection2) {
+    private fun removeConnection(tcpConnection: TcpConnection) {
         tcpConnections.remove(tcpConnection)
         discoveryBroadcaster.clientDisconnected(tcpConnection.serverPort)
     }
 
     private fun createNewConnection() {
-        val newConnection = TcpConnection2(controllerEventHandler, this).apply { start() }
+        val newConnection = TcpConnection(controllerEventHandler, this).apply { start() }
         tcpConnections.put(newConnection, 1)
         discoveryBroadcaster.addNewAvailablePort(newConnection.serverPort)
     }

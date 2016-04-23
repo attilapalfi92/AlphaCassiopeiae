@@ -7,8 +7,15 @@ import java.net.InetAddress
  */
 class AndroidController(private val controllerEventHandler: ControllerEventHandler,
                         private val controllerNotifier: ControllerNotifier,
-                        override var name: String? = null,
                         override var address: InetAddress? = null) : Controller {
+
+    override var name: String? = null
+        @Synchronized
+        get() = field
+        @Synchronized
+        set(value) {
+            field = value
+        }
 
     override fun aPressed() {
         controllerEventHandler.onApressed(this)
@@ -26,7 +33,15 @@ class AndroidController(private val controllerEventHandler: ControllerEventHandl
         controllerEventHandler.onYpressed(this)
     }
 
-    override fun vibrate(milliseconds: Long) {
-        controllerNotifier.vibrate(milliseconds)
+    override fun vibrate(milliseconds: Int) {
+        controllerNotifier.sendVibration(milliseconds)
+    }
+
+    override fun startSensorDataStream() {
+        controllerNotifier.sendStartSensorDataStream()
+    }
+
+    override fun stopSensorDataStream() {
+        controllerNotifier.sendStopSensorDataStream()
     }
 }
