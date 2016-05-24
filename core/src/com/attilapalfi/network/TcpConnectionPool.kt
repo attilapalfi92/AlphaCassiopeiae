@@ -1,56 +1,47 @@
 package com.attilapalfi.network
 
-import com.attilapalfi.commons.UDP_PORT
 import com.attilapalfi.controller.ControllerConnectionListener
-import com.attilapalfi.controller.ControllerEventHandler
-import com.attilapalfi.core.World
-import java.util.*
+import com.attilapalfi.controller.ControllerInputHandler
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by palfi on 2016-04-10.
  */
-class TcpConnectionPool(private val controllerEventHandler: ControllerEventHandler,
+class TcpConnectionPool(private val maxTcpClients: Int,
+                        private val udpMessageBroadcaster: UdpMessageBroadcaster,
+                        private val controllerInputHandler: ControllerInputHandler,
                         private val controllerConnectionListener: ControllerConnectionListener) :
         TcpConnectionEventListener {
 
-    private val maxTcpClients: Int = 4
-    private val tcpConnections: ConcurrentHashMap<TcpConnection, Int> = initTcpConnections()
+    private val tcpConnections: ConcurrentHashMap<TcpConnection, Int> = ConcurrentHashMap();
 
-    private var discoveryBroadcaster: UdpMessageBroadcaster = DiscoveryBroadcaster(
-            Collections.synchronizedList(tcpConnections.map { it.key.serverPort }),
-            UDP_PORT, maxTcpClients)
-
-    private fun initTcpConnections(): ConcurrentHashMap<TcpConnection, Int> {
-        return ConcurrentHashMap<TcpConnection, Int>().apply {
-            for (i in 1..maxTcpClients) {
-                put(TcpConnection(controllerEventHandler, this@TcpConnectionPool).apply { start() }, 1)
-            }
+    fun initPool() {
+        for (i in 1..maxTcpClients) {
+            val tcpConnection = TcpConnection(controllerInputHandler, this@TcpConnectionPool)
+                    .apply { start(); };
+            udpMessageBroadcaster.addNewAvailablePort(tcpConnection.serverPort);
+            tcpConnections.put(tcpConnection, 1);
         }
     }
 
-    fun startBroadcasting() {
-        discoveryBroadcaster.startBroadcasting()
+    override fun onTcpConnected(tcpConnection: TcpConnection) {
+        controllerConnectionListener.controllerConnected(tcpConnection.controller);
+        udpMessageBroadcaster.clientConnected(tcpConnection.serverPort);
     }
 
-    override fun onConnect(tcpConnection: TcpConnection) {
-        controllerConnectionListener.controllerConnected(tcpConnection.controller)
-        discoveryBroadcaster.clientConnected(tcpConnection.serverPort)
-    }
-
-    override fun onDisconnect(tcpConnection: TcpConnection) {
-        removeConnection(tcpConnection)
-        createNewConnection()
+    override fun onTcpDisconnect(tcpConnection: TcpConnection) {
+        removeConnection(tcpConnection);
+        createNewConnection();
     }
 
     private fun removeConnection(tcpConnection: TcpConnection) {
-        tcpConnections.remove(tcpConnection)
-        discoveryBroadcaster.clientDisconnected(tcpConnection.serverPort)
+        tcpConnections.remove(tcpConnection);
+        udpMessageBroadcaster.clientDisconnected(tcpConnection.serverPort);
     }
 
     private fun createNewConnection() {
-        val newConnection = TcpConnection(controllerEventHandler, this).apply { start() }
-        tcpConnections.put(newConnection, 1)
-        discoveryBroadcaster.addNewAvailablePort(newConnection.serverPort)
+        val newConnection = TcpConnection(controllerInputHandler, this).apply { start(); };
+        tcpConnections.put(newConnection, 1);
+        udpMessageBroadcaster.addNewAvailablePort(newConnection.serverPort);
     }
 }

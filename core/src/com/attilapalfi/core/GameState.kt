@@ -6,6 +6,7 @@ package com.attilapalfi.core
 enum class GameState {
     WAITING_FOR_PLAYER,
     WAITING_FOR_START,
+    STARTED,
     RUNNING,
     PAUSED,
     OVER,

@@ -8,8 +8,8 @@ import com.attilapalfi.commons.messages.ServerTcpMessageType.*
 import com.attilapalfi.commons.utlis.ServerMessageConverter
 import com.attilapalfi.controller.AndroidController
 import com.attilapalfi.controller.Controller
-import com.attilapalfi.controller.ControllerEventHandler
-import com.attilapalfi.controller.ControllerNotifier
+import com.attilapalfi.controller.ControllerInputHandler
+import com.attilapalfi.controller.Connection
 import com.attilapalfi.exception.ConnectionException
 import com.attilapalfi.logger.logInfo
 import java.net.InetAddress
@@ -22,17 +22,15 @@ import java.util.concurrent.Executors
 /**
  * Created by palfi on 2016-04-10.
  */
-class TcpConnection(private val controllerEventHandler: ControllerEventHandler,
+class TcpConnection(private val controllerInputHandler: ControllerInputHandler,
                     private val tcpConnectionEventListener: TcpConnectionEventListener) :
-        ControllerNotifier {
+        Connection {
 
-    companion object {
-        private val tcpSendingExecutor: ExecutorService = Executors.newFixedThreadPool(4)
-    }
+    private val tcpSendingExecutor: ExecutorService = Executors.newSingleThreadExecutor();
 
     val serverPort: Int
     private val serverSocket: ServerSocket = ServerSocket()
-    private var connection: Socket? = null
+    private var remoteSocket: Socket? = null
     var clientIp: InetAddress? = null
         private set
     var clientPort: Int? = null
@@ -46,7 +44,7 @@ class TcpConnection(private val controllerEventHandler: ControllerEventHandler,
     var started: Boolean = false
         private set
 
-    val controller: Controller = AndroidController(controllerEventHandler, this)
+    val controller: Controller = AndroidController(controllerInputHandler, this)
 
     private val tcpMessageBuffer: TcpMessageBuffer by lazy {
         IntelligentTcpMessageBuffer(ServerTcpSignalProcessor(controller))
@@ -59,27 +57,27 @@ class TcpConnection(private val controllerEventHandler: ControllerEventHandler,
         serverPort = serverSocket.localPort
     }
 
-    @Synchronized
     override fun sendVibration(milliseconds: Int) {
         tcpSendingExecutor.submit {
             val message = messageConverter.messageToByteArray(ServerTcpMessage(VIBRATE, milliseconds))
-            connection?.outputStream?.use { it.write(message) }
+            remoteSocket?.outputStream?.use { it.write(message) }
         }
     }
 
-    @Synchronized
+    override fun sendGlow(milliseconds: Int) {
+        throw UnsupportedOperationException()
+    }
+
     override fun sendStartSensorDataStream() {
         val message = messageConverter.messageToByteArray(ServerTcpMessage(START_SENSOR_STREAM))
-        connection?.outputStream?.use { it.write(message) }
+        remoteSocket?.outputStream?.use { it.write(message) }
     }
 
-    @Synchronized
     override fun sendStopSensorDataStream() {
         val message = messageConverter.messageToByteArray(ServerTcpMessage(STOP_SENSOR_STREAM))
-        connection?.outputStream?.use { it.write(message) }
+        remoteSocket?.outputStream?.use { it.write(message) }
     }
 
-    @Synchronized
     fun start() {
         if (!started) {
             started = true
@@ -100,23 +98,24 @@ class TcpConnection(private val controllerEventHandler: ControllerEventHandler,
         } catch (e: ConnectionException) {
             //TODO: ??? connectionEventHandler.onTcpConnectionDeath(this)
         } finally {
-            tcpConnectionEventListener.onDisconnect(this)
+            disconnect();
+            tcpConnectionEventListener.onTcpDisconnect(this)
         }
     }
 
     private fun connectAndSetProperties() {
-        connection = serverSocket.accept() // blocks until connection
-        connection?.keepAlive = true
-        clientIp = connection?.inetAddress
-        clientPort = connection?.port
+        remoteSocket = serverSocket.accept() // blocks until connection
+        remoteSocket?.keepAlive = true
+        clientIp = remoteSocket?.inetAddress
+        clientPort = remoteSocket?.port
         controller.address = clientIp
-        tcpConnectionEventListener.onConnect(this)
+        tcpConnectionEventListener.onTcpConnected(this)
     }
 
     private fun readFromSocket() {
         val array = ByteArray(TCP_BUFFER_SIZE)
         var readBytes: Int = 0
-        connection?.inputStream?.use {
+        remoteSocket?.inputStream?.use {
             while (readBytes != -1) {
                 readBytes = it.read(array)
                 if (readBytes != -1) {
@@ -127,7 +126,7 @@ class TcpConnection(private val controllerEventHandler: ControllerEventHandler,
     }
 
     fun isConnected(): Boolean {
-        connection?.let {
+        remoteSocket?.let {
             return !it.isClosed && it.isConnected
         }
         return false
@@ -136,7 +135,7 @@ class TcpConnection(private val controllerEventHandler: ControllerEventHandler,
     fun disconnect() {
         stopped = true
         serverSocket.close()
-        connection?.close()
+        remoteSocket?.close()
     }
 
 }

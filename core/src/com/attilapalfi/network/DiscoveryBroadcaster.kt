@@ -3,14 +3,15 @@ package com.attilapalfi.network
 import com.attilapalfi.commons.messages.UdpDiscoveryBroadcast
 import com.attilapalfi.commons.utlis.ServerMessageConverter
 import java.net.*
+import java.util.*
 
 /**
  * Created by palfi on 2016-01-11.
  */
-class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
-                           private val port: Int, private val maxPlayers: Int) :
+class DiscoveryBroadcaster(private val port: Int, private val maxPlayers: Int) :
         UdpMessageBroadcaster {
 
+    private val availableTcpPorts = Collections.synchronizedList(ArrayList<Int>());
     private val socket: DatagramSocket by lazy { DatagramSocket().apply { broadcast = true } }
     private val broadcastAddresses: List<InetAddress>
             = filterBroadcastAddresses(collectValidNetworkInterfaceAddresses())
@@ -19,6 +20,8 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     private var connectedClients = 0
     @Volatile
     private var started = false
+
+    private val messageConverter = ServerMessageConverter()
 
     init {
         if (maxPlayers < 1) {
@@ -33,7 +36,9 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
             Thread({
                 socket.use {
                     while (true) {
-                        sendDiscoveryBroadcast()
+                        if (connectedClients < maxPlayers) {
+                            sendDiscoveryBroadcast()
+                        }
                         sleep()
                     }
                 }
@@ -44,8 +49,8 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     private fun sendDiscoveryBroadcast() {
         if (connectedClients < maxPlayers) {
             broadcastAddresses.forEach {
-                val broadcastMessage = ServerMessageConverter
-                        .udpDiscoveryToByteArray(UdpDiscoveryBroadcast(availableTcpPorts))
+                val broadcastMessage = messageConverter
+                        .messageToByteArray(UdpDiscoveryBroadcast(availableTcpPorts))
                 socket.send(DatagramPacket(broadcastMessage, broadcastMessage.size, it, port))
             }
         }
@@ -54,14 +59,10 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     private fun sleep() {
         when (connectedClients) {
             0 -> Thread.sleep(100)
-            1 -> Thread.sleep(300)
-            2 -> Thread.sleep(300)
-            3 -> Thread.sleep(300)
-            else -> Thread.sleep(1000)
+            else -> Thread.sleep(300)
         }
     }
 
-    @Synchronized
     override fun clientConnected(serverPort: Int) {
         if (connectedClients < maxPlayers) {
             connectedClients++
@@ -69,16 +70,10 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
         availableTcpPorts.remove(serverPort)
     }
 
-    @Synchronized
     override fun clientDisconnected(serverPort: Int) {
         if (connectedClients > 0) {
             connectedClients--;
         }
-    }
-
-    @Synchronized
-    override fun clientsCleared() {
-        connectedClients = 0
     }
 
     override fun addNewAvailablePort(serverPort: Int) {

@@ -7,14 +7,15 @@ import java.net.InetAddress
  */
 interface Controller {
 
-    var address: InetAddress?
-    var name: String?
+    var address: InetAddress?;
+    var name: String?;
 
-    fun aPressed()
-    fun bPressed()
-    fun xPressed()
-    fun yPressed()
-    fun vibrate(milliseconds: Int)
-    fun startSensorDataStream()
-    fun stopSensorDataStream()
+    fun aPressed();
+    fun bPressed();
+    fun xPressed();
+    fun yPressed();
+    fun vibrate(milliseconds: Int);
+    fun glow(milliseconds: Int);
+    fun startSensorDataStream();
+    fun stopSensorDataStream();
 }

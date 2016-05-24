@@ -6,7 +6,7 @@ import com.attilapalfi.commons.messages.PressedButton
 import com.attilapalfi.commons.messages.PressedButton.*
 import com.attilapalfi.commons.messages.UdpSensorData
 import com.attilapalfi.controller.Controller
-import com.attilapalfi.controller.ControllerEventHandler
+import com.attilapalfi.controller.ControllerInputHandler
 import com.attilapalfi.game.CameraViewport
 import com.attilapalfi.game.GameMap
 import com.attilapalfi.game.WorldRenderer
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Created by palfi on 2016-01-11.
  */
-class World : ControllerEventHandler, SensorDataListener {
+class World : ControllerInputHandler, SensorDataListener {
 
     @Volatile
     var gameState: GameState = GameState.WAITING_FOR_PLAYER
@@ -54,6 +54,9 @@ class World : ControllerEventHandler, SensorDataListener {
                 when (it) {
                     A -> {
                         onApressed(player.controller)
+                    }
+                    B -> {
+                        onBpressed(player.controller)
                     }
                     X -> {
                         onXpressed(player.controller)
@@ -116,7 +119,7 @@ class World : ControllerEventHandler, SensorDataListener {
     override fun onBpressed(controller: Controller) {
         when (gameState) {
             GameState.WAITING_FOR_START -> {
-                gameState = GameState.RUNNING
+                gameState = GameState.STARTED
             }
             GameState.RUNNING -> {
                 gameState = GameState.PAUSED
