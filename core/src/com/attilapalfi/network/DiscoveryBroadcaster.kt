@@ -20,6 +20,8 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     @Volatile
     private var started = false
 
+    private val messageConverter = ServerMessageConverter()
+
     init {
         if (maxPlayers < 1) {
             throw IllegalStateException("maxPlayers must be at least 1.")
@@ -33,7 +35,9 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
             Thread({
                 socket.use {
                     while (true) {
-                        sendDiscoveryBroadcast()
+                        if (connectedClients < maxPlayers) {
+                            sendDiscoveryBroadcast()
+                        }
                         sleep()
                     }
                 }
@@ -44,8 +48,8 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     private fun sendDiscoveryBroadcast() {
         if (connectedClients < maxPlayers) {
             broadcastAddresses.forEach {
-                val broadcastMessage = ServerMessageConverter
-                        .udpDiscoveryToByteArray(UdpDiscoveryBroadcast(availableTcpPorts))
+                val broadcastMessage = messageConverter
+                        .messageToByteArray(UdpDiscoveryBroadcast(availableTcpPorts))
                 socket.send(DatagramPacket(broadcastMessage, broadcastMessage.size, it, port))
             }
         }
@@ -54,10 +58,7 @@ class DiscoveryBroadcaster(private val availableTcpPorts: MutableList<Int>,
     private fun sleep() {
         when (connectedClients) {
             0 -> Thread.sleep(100)
-            1 -> Thread.sleep(300)
-            2 -> Thread.sleep(300)
-            3 -> Thread.sleep(300)
-            else -> Thread.sleep(1000)
+            else -> Thread.sleep(300)
         }
     }
 

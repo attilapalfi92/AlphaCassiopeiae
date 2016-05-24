@@ -55,6 +55,9 @@ class World : ControllerEventHandler, SensorDataListener {
                     A -> {
                         onApressed(player.controller)
                     }
+                    B -> {
+                        onBpressed(player.controller)
+                    }
                     X -> {
                         onXpressed(player.controller)
                     }
@@ -116,7 +119,7 @@ class World : ControllerEventHandler, SensorDataListener {
     override fun onBpressed(controller: Controller) {
         when (gameState) {
             GameState.WAITING_FOR_START -> {
-                gameState = GameState.RUNNING
+                gameState = GameState.STARTED
             }
             GameState.RUNNING -> {
                 gameState = GameState.PAUSED
