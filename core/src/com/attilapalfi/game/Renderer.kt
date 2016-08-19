@@ -2,17 +2,38 @@ package com.attilapalfi.game
 
 import com.attilapalfi.CAMERA_HEIGHT
 import com.attilapalfi.CAMERA_WIDTH
+import com.attilapalfi.game.levels.AbstractMap
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.maps.MapRenderer
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 
 /**
  * Created by 212461305 on 2016.03.16..
  */
-class WorldRenderer {
+class Renderer : MapRenderer {
 
-    private var map: GameMap? = null
+    // TODO use these
+    override fun render() {
+        throw UnsupportedOperationException()
+    }
+
+    override fun render(layers: IntArray?) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun setView(camera: OrthographicCamera?) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun setView(projectionMatrix: Matrix4?, viewboundsX: Float, viewboundsY: Float, viewboundsWidth: Float, viewboundsHeight: Float) {
+        throw UnsupportedOperationException()
+    }
+    // TODO: over
+
+    private var map: AbstractMap? = null
     private val initialCamPosition = Vector3(CAMERA_WIDTH / 6, CAMERA_HEIGHT / 2, 0f)
 
     val camera: OrthographicCamera = OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT).apply {
@@ -25,7 +46,7 @@ class WorldRenderer {
         camera.update()
     }
 
-    fun startNewGame(map: GameMap) {
+    fun startNewGame(map: AbstractMap) {
         this.map = map
         camera.position.set(initialCamPosition)
     }

@@ -99,7 +99,6 @@ class TcpConnection(private val controllerInputHandler: ControllerInputHandler,
             //TODO: ??? connectionEventHandler.onTcpConnectionDeath(this)
         } finally {
             disconnect();
-            tcpConnectionEventListener.onTcpDisconnect(this)
         }
     }
 
@@ -127,15 +126,15 @@ class TcpConnection(private val controllerInputHandler: ControllerInputHandler,
 
     fun isConnected(): Boolean {
         remoteSocket?.let {
-            return !it.isClosed && it.isConnected
-        }
-        return false
+            return !it.isClosed && it.isConnected;
+        };
+        return false;
     }
 
     fun disconnect() {
-        stopped = true
-        serverSocket.close()
-        remoteSocket?.close()
+        stopped = true;
+        serverSocket.close();
+        remoteSocket?.close();
+        tcpConnectionEventListener.onTcpDisconnect(this);
     }
-
 }

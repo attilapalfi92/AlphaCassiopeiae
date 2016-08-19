@@ -17,7 +17,7 @@ open class HashedEntity {
         return hashCode
     }
 
-    override fun equals(other: Any?): Boolean{
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other?.javaClass != javaClass) return false
 

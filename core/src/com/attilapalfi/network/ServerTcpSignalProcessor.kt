@@ -31,7 +31,8 @@ class ServerTcpSignalProcessor(private val controller: Controller) : TcpSignalPr
                         B -> controller.bPressed()
                         X -> controller.xPressed()
                         Y -> controller.yPressed()
-                        PressedButton.None -> {}
+                        PressedButton.None -> {
+                        }
                     }
                 }
             }

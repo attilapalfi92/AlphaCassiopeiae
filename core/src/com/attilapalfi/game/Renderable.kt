@@ -7,5 +7,5 @@ import com.badlogic.gdx.utils.Disposable
  * Created by palfi on 2016-04-02.
  */
 interface Renderable : Disposable {
-    fun render(projAndViewMatrix: Matrix4)
+    fun render(projAndViewMatrix: Matrix4);
 }

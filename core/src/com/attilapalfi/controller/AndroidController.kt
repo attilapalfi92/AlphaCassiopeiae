@@ -11,12 +11,12 @@ class AndroidController(private val controllerInputHandler: ControllerInputHandl
 
     @Volatile
     override var name: String? = null;
-//        @Synchronized
-//        get() = field
-//        @Synchronized
-//        set(value) {
-//            field = value
-//        }
+    //        @Synchronized
+    //        get() = field
+    //        @Synchronized
+    //        set(value) {
+    //            field = value
+    //        }
 
     override fun aPressed() {
         controllerInputHandler.onApressed(this);

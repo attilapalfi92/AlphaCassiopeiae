@@ -1,7 +1,8 @@
-package com.attilapalfi.game
+package com.attilapalfi.game.levels
 
 import com.attilapalfi.CAMERA_HEIGHT
 import com.attilapalfi.CAMERA_WIDTH
+import com.attilapalfi.game.CameraViewport
 import com.attilapalfi.game.entities.Attila
 import com.attilapalfi.game.entities.Player
 import com.badlogic.gdx.math.Matrix4
@@ -10,10 +11,7 @@ import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 
-/**
- * Created by 212461305 on 2016.03.17..
- */
-class GameMap(private val players: ConcurrentHashMap<InetAddress, Player>) : Steppable, Renderable {
+class Level1Map(players: ConcurrentHashMap<InetAddress, Player>) : AbstractMap(players) {
 
     var currentPosition: Float = 0f
     val preCalculationSize: Float = CAMERA_WIDTH / 2
